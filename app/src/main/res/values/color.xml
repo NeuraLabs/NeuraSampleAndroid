@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="light_white">#f7f7f7</color>
+    <color name="light_black">#282c2d</color>
+    <color name="grey">#999999</color>
+    <color name="red_disconnected">#ff001e</color>
+    <color name="green_connected">#269e16</color>
+</resources>

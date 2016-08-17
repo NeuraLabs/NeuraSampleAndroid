@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.neura.sampleapplication">
+
+    <!-- required for GCM push notifications -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" /> <!-- Only to minSdk <= 15 -->
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <permission
+        android:name="com.neura.sampleapplication.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+    <uses-permission android:name="com.neura.sampleapplication.permission.C2D_MESSAGE" />
+    <!-- End of GCM definitions -->
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/big_neura_circle"
+        android:label="@string/app_name"
+        android:screenOrientation="portrait"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".activities.MainActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- In order to detect system events from neura, please declare a broadcast receiver who
+        catches the intent com.neura.android.ACTION_NEURA_STATE_ALERT-->
+        <receiver
+            android:name=".HandleNeuraStateAlertReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.neura.android.ACTION_NEURA_STATE_ALERT" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Receiver for GCM push notifications -->
+        <receiver
+            android:name=".NeuraEventsBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
+                <category android:name="com.neura.sampleapplication" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>

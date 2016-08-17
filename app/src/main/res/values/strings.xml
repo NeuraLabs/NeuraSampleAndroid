@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">NeuraSample</string>
+
+    <string name="app_uid">0a5dcc2a7acc18423f1770f275feefad1466baec9d3b090d773785001d87a97b</string>
+    <string name="app_secret">2395b3571a45d3dd9f86f22c13baf05c9dd83aa0d093f1fa1febdd984422edd4</string>
+
+    <string name="google_api_project_number">686011912850</string>
+
+    <!-- fragment main strings -->
+    <string name="app_permissions_list">Permissions List</string>
+    <string name="connect_request_permissions">Connect and request permissions</string>
+    <string name="your_neura">My Neura</string>
+    <string name="edit_subscriptions">Edit Subscriptions</string>
+    <string name="disconnect_from_neura">Disconnect</string>
+    <string name="neura_status">Neura status:</string>
+    <string name="neura_status_disconnected">Disconnected</string>
+    <string name="neura_status_connected">Connected</string>
+    <string name="services">Services</string>
+
+    <!-- fragment permissions list -->
+    <string name="permissions_header">This app is allowed to request the following permissions:</string>
+    <string name="permissions_footer">Permissions list can be edited in Neura Developer Console</string>
+    <string name="permissions_subscribe_title">Enable or disable subscriptions based on the permissions approved:</string>
+
+    <!-- fragment add device -->
+    <string name="get_devices">Get All Available Devices</string>
+    <string name="has_devices_with_capabilities">Has Devices With Capability</string>
+    <string name="get_capabilities">Get Capabilities</string>
+    <string name="add_device_general">Add a device</string>
+    <string name="add_device_capabilities">Add a device by capability</string>
+    <string name="add_device_name">Add a device by name</string>
+</resources>
