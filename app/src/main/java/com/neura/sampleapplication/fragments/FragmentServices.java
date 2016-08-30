@@ -43,10 +43,10 @@ public class FragmentServices extends BaseFragment {
                 Log.e(getClass().getSimpleName(), "Failed to receive situation");
                 mProgress.setVisibility(View.GONE);
             }
-        }, System.currentTimeMillis() - 1000 * 60 * 10);
-        //Receiving situation status for 10 minutes ago. fyi - you won't always get followingSituation
-        //since if the user hasn't changed its place (stayed at home for the last 10 min, there
-        //won't be any followingSituation.
+        }, System.currentTimeMillis() - 1000 * 60 * 30);
+        //Receiving situation status for 30 minutes ago. fyi - you won't always get followingSituation
+        //since if the user hasn't changed its place (stayed at home for the last 30 min,
+        //followingSituation will be offline.
     }
 
 }
