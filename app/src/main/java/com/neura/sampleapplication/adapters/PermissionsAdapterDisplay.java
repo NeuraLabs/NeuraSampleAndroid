@@ -9,33 +9,24 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.neura.sampleapplication.R;
-import com.neura.sampleapplication.fragments.FragmentPermissions;
+import com.neura.sampleapplication.fragments.FragmentSubscribe;
 
 import java.util.ArrayList;
 
-/**
- * Created by Hadas on 9/6/2015.
- */
-public class PermissionsAdapterDisplay extends ArrayAdapter<FragmentPermissions.PermissionStatus> {
-
-    /**
-     * true - showing layout with toggle, false otherwise.
-     */
-    private boolean mShowToggle;
+public class PermissionsAdapterDisplay extends ArrayAdapter<FragmentSubscribe.PermissionStatus> {
 
     private ISwitchChangeListener mListener;
 
     public PermissionsAdapterDisplay(Context context, int resource,
-                                     ArrayList<FragmentPermissions.PermissionStatus> permissions,
-                                     boolean showToggle, ISwitchChangeListener listener) {
+                                     ArrayList<FragmentSubscribe.PermissionStatus> permissions,
+                                     ISwitchChangeListener listener) {
         super(context, resource, permissions);
-        mShowToggle = showToggle;
         mListener = listener;
     }
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        FragmentPermissions.PermissionStatus permission = getItem(position);
+        FragmentSubscribe.PermissionStatus permission = getItem(position);
         final ViewHolder viewHolder;
 
         if (convertView == null) {
@@ -49,7 +40,6 @@ public class PermissionsAdapterDisplay extends ArrayAdapter<FragmentPermissions.
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        viewHolder.mSwitch.setVisibility(mShowToggle ? View.VISIBLE : View.GONE);
         viewHolder.mSwitch.setChecked(permission.isEnabled());
 
         viewHolder.mEventName.setText(permission.getPermission().getDisplayName());

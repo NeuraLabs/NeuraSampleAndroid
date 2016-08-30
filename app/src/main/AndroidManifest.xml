@@ -8,6 +8,7 @@
     <permission
         android:name="com.neura.sampleapplication.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
+
     <uses-permission android:name="com.neura.sampleapplication.permission.C2D_MESSAGE" />
     <!-- End of GCM definitions -->
 
@@ -49,7 +50,6 @@
                 <category android:name="com.neura.sampleapplication" />
             </intent-filter>
         </receiver>
-
     </application>
 
 </manifest>

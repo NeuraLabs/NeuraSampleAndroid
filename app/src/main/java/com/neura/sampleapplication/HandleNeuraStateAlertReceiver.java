@@ -6,10 +6,6 @@ import android.widget.Toast;
 import com.neura.android.statealert.SensorsManager;
 import com.neura.standalonesdk.util.NeuraStateAlertReceiver;
 
-/**
- * Created by hadas on 28/06/2016.
- */
-
 public class HandleNeuraStateAlertReceiver extends NeuraStateAlertReceiver {
 
     @Override
@@ -21,7 +17,6 @@ public class HandleNeuraStateAlertReceiver extends NeuraStateAlertReceiver {
     public void onDetectedMissingPermissionAfterUserPressedNeverAskAgain(Context context, String permission) {
         Toast.makeText(context, "Neura detected mission permission BUT user already pressed 'Never ask again': " + permission, Toast.LENGTH_LONG).show();
     }
-
 
     @Override
     public void onSensorDisabled(Context context, SensorsManager.Type sensorType) {

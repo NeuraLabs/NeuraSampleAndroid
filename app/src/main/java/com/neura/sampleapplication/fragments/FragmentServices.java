@@ -1,6 +1,7 @@
 package com.neura.sampleapplication.fragments;
 
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,11 +11,8 @@ import android.widget.TextView;
 
 import com.neura.resources.situation.SituationCallbacks;
 import com.neura.resources.situation.SituationData;
+import com.neura.sampleapplication.NeuraManager;
 import com.neura.sampleapplication.R;
-
-/**
- * Created by hadas on 01/06/2016.
- */
 
 public class FragmentServices extends BaseFragment {
 
@@ -29,10 +27,11 @@ public class FragmentServices extends BaseFragment {
         mProgress = (ProgressBar) view.findViewById(R.id.progress);
         mProgress.setVisibility(View.VISIBLE);
 
-        getMainActivity().getClient().getUserSituation(new SituationCallbacks() {
+        NeuraManager.getInstance().getClient().getUserSituation(new SituationCallbacks() {
             @Override
             public void onSuccess(SituationData situationData) {
                 Log.i(getClass().getSimpleName(), "Situation received successfully : " + situationData.toString());
+                ((TextView) getView().findViewById(R.id.situation_results_text)).setMovementMethod(new ScrollingMovementMethod());
                 ((TextView) getView().findViewById(R.id.situation_results_text))
                         .setText(situationData.toString());
                 //SituationData class overrides to string, so you'll be displayed with the results.

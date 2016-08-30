@@ -6,12 +6,7 @@ import android.widget.ProgressBar;
 
 import com.neura.sampleapplication.activities.MainActivity;
 
-/**
- * Created by Hadas on 9/16/2015.
- */
 public abstract class BaseFragment extends Fragment {
-
-    protected static final int NEURA_SDK_REQUEST_CODE = 1;
 
     protected ProgressBar mProgress;
 

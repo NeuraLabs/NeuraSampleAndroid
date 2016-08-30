@@ -1,29 +1,40 @@
 package com.neura.sampleapplication.fragments;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.neura.resources.authentication.AuthenticateCallback;
+import com.neura.resources.data.PickerCallback;
+import com.neura.sampleapplication.NeuraManager;
 import com.neura.sampleapplication.R;
+import com.neura.sampleapplication.adapters.PermissionsAdapterDisplay;
+import com.neura.sdk.callbacks.GetPermissionsRequestCallbacks;
 import com.neura.sdk.object.AppSubscription;
+import com.neura.sdk.object.AuthenticationRequest;
+import com.neura.sdk.object.Permission;
 import com.neura.sdk.service.GetSubscriptionsCallbacks;
 import com.neura.sdk.service.SubscriptionRequestCallbacks;
 import com.neura.sdk.util.NeuraUtil;
-import com.neura.standalonesdk.util.SDKUtils;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-/**
- * Created by Hadas on 9/16/2015.
- */
-public class FragmentSubscribe extends FragmentPermissions {
+public class FragmentSubscribe extends BaseFragment implements PermissionsAdapterDisplay.ISwitchChangeListener {
+
+    private ListView mList;
+    private ArrayList<PermissionStatus> mPermissions = new ArrayList<>();
+    private PermissionsAdapterDisplay mAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -34,35 +45,14 @@ public class FragmentSubscribe extends FragmentPermissions {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        mList = (ListView) view.findViewById(R.id.permissions_list);
+        mAdapter = new PermissionsAdapterDisplay(getMainActivity(), R.layout.permission_item,
+                mPermissions, this);
+        mList.setAdapter(mAdapter);
+
         mProgress = (ProgressBar) view.findViewById(R.id.progress);
-    }
 
-    @Override
-    public boolean shouldShowExtendedToggle() {
-        return true;
-    }
-
-    @Override
-    protected void setSubscriptionsState() {
-        getMainActivity().getClient().getSubscriptions(new GetSubscriptionsCallbacks() {
-
-            @Override
-            public void onSuccess(List<AppSubscription> subscriptions) {
-                for (AppSubscription subscription : subscriptions) {
-                    updateSubscribe(subscription.getEventName());
-                }
-
-                mAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onFailure(Bundle resultData, int errorCode) {
-                Toast.makeText(getMainActivity(),
-                        "Error: Failed to receive event subscription list. Error code: "
-                                + NeuraUtil.errorCodeToString(errorCode),
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
+        fetchPermissions();
     }
 
     /**
@@ -77,8 +67,8 @@ public class FragmentSubscribe extends FragmentPermissions {
      * 1. webhook : define a webhood when creating the application on our devsite.
      * 2. push : Neura will send you a push on event, to your declared receiver on the manifest.
      * In this case, make sure to call {@link com.neura.standalonesdk.service.NeuraApiClient#registerPushServerApiKey(Activity, String)}
-     * after {@link com.neura.standalonesdk.service.NeuraApiClient#authenticate(int, com.neura.sdk.object.AuthenticationRequest)} is completed,
-     * (called onActivityResult in {@link FragmentMain})
+     * after {@link com.neura.standalonesdk.service.NeuraApiClient#authenticate(AuthenticationRequest, AuthenticateCallback)} is completed.
+     * In this application, this is done on {@link FragmentMain#authenticateWithNeura()}.
      * make manifest adjustments and register a receiver : {@link com.neura.sampleapplication.NeuraEventsBroadcastReceiver}
      * 3 very important notes :
      * ------------------------
@@ -107,24 +97,27 @@ public class FragmentSubscribe extends FragmentPermissions {
          * indicates whether to use push (true) or webhook(false) in order to receive an event.
          */
         if (isEnabled)
-            getMainActivity().getClient().subscribeToEvent(eventName, eventIdentifier, true, mSubscribeAddRemoveRequest);
+            NeuraManager.getInstance().getClient().subscribeToEvent(eventName, eventIdentifier, true, mSubscribeAddRemoveRequest);
         else
-            getMainActivity().getClient().removeSubscription(eventName, eventIdentifier, true, mSubscribeAddRemoveRequest);
+            NeuraManager.getInstance().getClient().removeSubscription(eventName, eventIdentifier, true, mSubscribeAddRemoveRequest);
     }
 
     private SubscriptionRequestCallbacks mSubscribeAddRemoveRequest = new SubscriptionRequestCallbacks() {
         @Override
-        public void onSuccess(String eventName, Bundle resultData, String identifier) {
+        public void onSuccess(final String eventName, Bundle resultData, String identifier) {
             loadProgress(false);
 
             if (!isPermissionEnabled(eventName))
                 return;
-            //Please notice that since the missing data flow is asynchronous,
-            //the return will be onActivityResult on this class.
-            if (getMainActivity() != null)
-                getMainActivity().getClient().getMissingDataForEvent(getMainActivity(),
-                        getString(R.string.app_uid), eventName,
-                        NEURA_SDK_REQUEST_CODE);
+            NeuraManager.getInstance().getClient().getMissingDataForEvent(
+                    eventName, new PickerCallback() {
+                        @Override
+                        public void onResult(boolean success) {
+                            Log.i(getClass().getSimpleName(), (success ?
+                                    "Successfully added data for event : " :
+                                    "User canceled adding data for event : ") + eventName);
+                        }
+                    });
         }
 
         @Override
@@ -173,23 +166,132 @@ public class FragmentSubscribe extends FragmentPermissions {
         }
     }
 
+    protected void fetchPermissions() {
+        loadProgress(true);
+        NeuraManager.getInstance().getClient().getAppPermissions(new GetPermissionsRequestCallbacks() {
+            @Override
+            public void onSuccess(final List<Permission> permissions) throws RemoteException {
+                if (getActivity() == null)
+                    return;
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadProgress(false);
+                        for (int i = 0; i < permissions.size(); i++)
+                            mPermissions.add(new PermissionStatus(permissions.get(i)));
+                        sortByActivePermissions();
+                        setSubscriptionsState();
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Bundle resultData, int errorCode) throws RemoteException {
+                loadProgress(false);
+            }
+
+            @Override
+            public IBinder asBinder() {
+                return null;
+            }
+        });
+    }
+
+    private void setSubscriptionsState() {
+        NeuraManager.getInstance().getClient().getSubscriptions(new GetSubscriptionsCallbacks() {
+
+            @Override
+            public void onSuccess(List<AppSubscription> subscriptions) {
+                for (AppSubscription subscription : subscriptions) {
+                    updateSubscribe(subscription.getEventName());
+                }
+
+                mAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(Bundle resultData, int errorCode) {
+                Toast.makeText(getMainActivity(),
+                        "Error: Failed to receive event subscription list. Error code: "
+                                + NeuraUtil.errorCodeToString(errorCode),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    /**
+     * Sorting permissions array by active events (meaning - all the permissions that neura supports
+     * at the moment will be on top, and the non active events will be on bottom of the list.
+     * FYI : when {@link Permission#isActive()} = false, there's no need to create subscription
+     * to this event, since this is not an event - this is a service, and the subscription is
+     * granted at once, without the need to subscribe.
+     */
+    private void sortByActivePermissions() {
+        ArrayList<Permission> permissions = new ArrayList<>();
+        if (mPermissions != null && mPermissions.isEmpty()) {
+            return;
+        }
+        for (int i = 0; i < mPermissions.size(); i++) {
+            permissions.add(mPermissions.get(i).getPermission());
+        }
+        permissions = NeuraManager.getInstance().getClient().getPermissionStatus(permissions);
+        for (int i = 0; i < permissions.size(); i++) {
+            for (int j = 0; j < mPermissions.size(); j++) {
+                if (mPermissions.get(j).getPermission().getName().equals(permissions.get(i))) {
+                    mPermissions.get(j).getPermission().setActive(permissions.get(i).isActive());
+                    break;
+                }
+            }
+        }
+        Collections.sort(mPermissions, mComparator);
+        mAdapter.notifyDataSetChanged();
+    }
+
+    private Comparator<PermissionStatus> mComparator = new Comparator<PermissionStatus>() {
+        @Override
+        public int compare(PermissionStatus lhs, PermissionStatus rhs) {
+            Permission left = lhs.getPermission();
+            Permission right = rhs.getPermission();
+            if ((left.isActive() && right.isActive()) || (!left.isActive() && !right.isActive())) {
+                return right.getDisplayName().compareTo(left.getDisplayName());
+            } else if (left.isActive() && !right.isActive())
+                return -1;
+            else if (!left.isActive() && right.isActive())
+                return 1;
+            return 0;
+        }
+    };
+
     @Override
     public void onSwitchChange(String eventName, boolean isEnabled) {
         subscribeToFromEvent(eventName, isEnabled);
     }
 
-    /**
-     * When returning from getMissingDataForEven, we'll return if the process of missing data
-     * failed or finished successfully, and upon successful return - we'll provide  the label that
-     * was handed.
-     */
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == NEURA_SDK_REQUEST_CODE) {
-            String label = SDKUtils.extractSelectedLabel(data);
-            Log.i(getClass().getSimpleName(), "Missing data flow finished " +
-                    (resultCode == FragmentActivity.RESULT_OK ?
-                            "successfully, user selected " : "unsuccessfully, user didn't select ") + label);
+    public class PermissionStatus implements Comparable {
+        Permission mPermission;
+        boolean mEnabled;
+
+        public PermissionStatus(Permission permission) {
+            mPermission = permission;
+            mEnabled = false;
+        }
+
+        public Permission getPermission() {
+            return mPermission;
+        }
+
+        public boolean isEnabled() {
+            return mEnabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            mEnabled = enabled;
+        }
+
+        @Override
+        public int compareTo(Object another) {
+            return 0;
         }
     }
+
 }

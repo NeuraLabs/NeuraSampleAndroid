@@ -1,10 +1,12 @@
 <resources>
-    <string name="app_name">NeuraSample</string>
+    <string name="app_name">Neura Sample</string>
 
-    <string name="app_uid">0a5dcc2a7acc18423f1770f275feefad1466baec9d3b090d773785001d87a97b</string>
-    <string name="app_secret">2395b3571a45d3dd9f86f22c13baf05c9dd83aa0d093f1fa1febdd984422edd4</string>
+    <string name="app_uid">dae8c58c0d6860bb828b25c01f99889bb719513063558e4b5882a4c8c5cb8015</string>
+    <string name="app_secret">00f7e687db22aa21c965a1754dcf1f24746129a054dac5f06dfa4e356eb303e3</string>
 
-    <string name="google_api_project_number">686011912850</string>
+    <!-- go to our guide : https://dev.theneura.com/docs/guide/android/pushnotification
+    in order to fetch your project's project number-->
+    <string name="google_api_project_number">367986524672</string>
 
     <!-- fragment main strings -->
     <string name="app_permissions_list">Permissions List</string>

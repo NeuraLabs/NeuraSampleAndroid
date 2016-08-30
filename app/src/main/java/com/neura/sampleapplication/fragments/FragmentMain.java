@@ -1,10 +1,7 @@
 package com.neura.sampleapplication.fragments;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +13,9 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.neura.resources.authentication.AuthenticateCallback;
+import com.neura.resources.authentication.AuthenticateData;
+import com.neura.sampleapplication.NeuraManager;
 import com.neura.sampleapplication.R;
 import com.neura.sdk.object.AuthenticationRequest;
 import com.neura.sdk.object.Permission;
@@ -23,15 +23,10 @@ import com.neura.standalonesdk.util.SDKUtils;
 
 import java.util.ArrayList;
 
-/**
- * Created by Hadas on 9/16/2015.
- */
 public class FragmentMain extends BaseFragment {
 
-    private Button mYourNeura;
     private Button mRequestPermissions;
-    private Button mSendLog;
-    private Button mDisplayPermissions;
+    private Button mDisconnect;
     private Button mSimulateAnEvent;
     private Button mAddDevice;
     private Button mServices;
@@ -39,8 +34,6 @@ public class FragmentMain extends BaseFragment {
     private ImageView mSymbolTop;
     private ImageView mSymbolBottom;
     private TextView mNeuraStatus;
-
-    private static final int NEURA_AUTHENTICATION_REQUEST_CODE = 0;
 
     private ArrayList<Permission> mPermissions;
 
@@ -57,16 +50,12 @@ public class FragmentMain extends BaseFragment {
         mSymbolBottom = (ImageView) view.findViewById(R.id.neura_symbol_bottom);
 
         mProgress = (ProgressBar) view.findViewById(R.id.progress);
-        mYourNeura = (Button) view.findViewById(R.id.your_neura);
         mRequestPermissions = (Button) view.findViewById(R.id.request_permissions_btn);
-        mSendLog = (Button) view.findViewById(R.id.send_log);
-        mDisplayPermissions = (Button) view.findViewById(R.id.permissions_list_btn);
+        mDisconnect = (Button) view.findViewById(R.id.disconnect);
         mSimulateAnEvent = (Button) view.findViewById(R.id.event_simulation);
         mAddDevice = (Button) view.findViewById(R.id.add_device);
         mServices = (Button) view.findViewById(R.id.services_button);
         mNeuraStatus = (TextView) view.findViewById(R.id.neura_status);
-
-        getMainActivity().initNeuraConnection();
 
         /** Copy the permissions you've declared to your application from
          * https://dev.theneura.com/console/edit/YOUR_APPLICATION - permissions section,
@@ -74,23 +63,21 @@ public class FragmentMain extends BaseFragment {
          * for example : https://s31.postimg.org/x8phjuza3/Screen_Shot_2016_07_27_at_1.png
          */
         mPermissions = new ArrayList<>(Permission.list(new String[]{
-                "userStartedDriving", "userLeftHome", "userArrivedToWork",
-                "userFinishedWalking", "userStartedWorkOut", "userWokeUp",
-                "userLeftGym", "userFinishedRunning", "userArrivedToGym",
-                "userArrivedHome", "userStartedSleeping", "userFinishedDriving",
+                "userStartedDriving", "userLeftHome", "userArrivedToWork", "userFinishedWalking",
+                "userStartedWorkOut", "userWokeUp", "userLeftGym", "userFinishedRunning",
+                "userArrivedToGym", "userArrivedHome", "userStartedSleeping", "userFinishedDriving",
                 "userLeftWork", "userLeftActiveZone", "userStartedRunning",
                 "userArrivedAtActiveZone", "userIsOnTheWayToWork", "userIsOnTheWayHome",
                 "userIsOnTheWayToActiveZone", "userIsIdle", "userStartedWalking",
                 "userArrivedHomeFromWork", "userArrivedWorkFromHome", "userDetails",
                 "activitySummaryPerPlace", "wellnessProfile", "dailyActivitySummary",
                 "getPersonNodesSemantics", "getLocationNodesSemantics", "sleepData",
-                "getDeviceNodesSemantics", "userSituation"
-        }));
+                "getDeviceNodesSemantics", "userSituation", "userPhoneNumber"}));
 
         mSymbolTop.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                setTopSymbol(SDKUtils.isConnected(getActivity(), getMainActivity().getClient()));
+                setTopSymbol(SDKUtils.isConnected(getActivity(), NeuraManager.getInstance().getClient()));
                 mSymbolTop.getViewTreeObserver().removeGlobalOnLayoutListener(this);
             }
         });
@@ -98,31 +85,21 @@ public class FragmentMain extends BaseFragment {
         mSymbolBottom.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                setBottomSymbol(SDKUtils.isConnected(getActivity(), getMainActivity().getClient()));
+                setBottomSymbol(SDKUtils.isConnected(getActivity(), NeuraManager.getInstance().getClient()));
                 mSymbolBottom.getViewTreeObserver().removeGlobalOnLayoutListener(this);
             }
         });
 
-        setUIState(SDKUtils.isConnected(getActivity(), getMainActivity().getClient()), false);
-
-        mSendLog.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            getMainActivity().getClient().sendLog(getMainActivity());
-                                        }
-                                    }
-
-        );
+        setUIState(SDKUtils.isConnected(getActivity(), NeuraManager.getInstance().getClient()), false);
 
         mSimulateAnEvent.setOnClickListener(new View.OnClickListener()
 
                                             {
                                                 @Override
                                                 public void onClick(View v) {
-                                                    getMainActivity().getClient().simulateAnEvent();
+                                                    NeuraManager.getInstance().getClient().simulateAnEvent();
                                                 }
                                             }
-
         );
 
         mAddDevice.setOnClickListener(new View.OnClickListener()
@@ -133,11 +110,10 @@ public class FragmentMain extends BaseFragment {
                                               getMainActivity().openFragment(new FragmentDeviceOperations());
                                           }
                                       }
-
         );
 
         ((TextView) view.findViewById(R.id.version)).
-                setText("Version : " + getMainActivity().getClient().getSdkVersion());
+                setText("Sdk Version : " + NeuraManager.getInstance().getClient().getSdkVersion());
 
         mServices.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -153,32 +129,9 @@ public class FragmentMain extends BaseFragment {
         loadProgress(!isConnected);
         mNeuraStatus.setText(getString(isConnected ? R.string.neura_status_connected : R.string.neura_status_disconnected));
         mNeuraStatus.setTextColor(getResources().getColor(isConnected ? R.color.green_connected : R.color.red_disconnected));
-        mDisplayPermissions.setText(getString(isConnected ?
-                R.string.disconnect_from_neura : R.string.app_permissions_list));
         setEnableOnButtons(isConnected);
         mRequestPermissions.setText(getString(isConnected ?
                 R.string.edit_subscriptions : R.string.connect_request_permissions));
-
-        mDisplayPermissions.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isConnected) {
-                    getMainActivity().getClient().forgetMe(true, new android.os.Handler.Callback() {
-                        @Override
-                        public boolean handleMessage(Message msg) {
-                            setUIState(false, true);
-                            loadProgress(false);
-                            return true;
-                        }
-                    });
-                } else {
-                    FragmentPermissions frag = new FragmentPermissions();
-                    Bundle bundle = new Bundle();
-                    frag.setArguments(bundle);
-                    getMainActivity().openFragment(frag);
-                }
-            }
-        });
 
         mRequestPermissions.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -186,32 +139,56 @@ public class FragmentMain extends BaseFragment {
                 if (isConnected)
                     openSubscribeFragment();
                 else {
-                    //The response for authenticate is received on onActivityResult method in this class
-                    AuthenticationRequest authenticationRequest = new AuthenticationRequest();
-                    authenticationRequest.setPermissions(mPermissions);
-                    getMainActivity().getClient().authenticate(NEURA_AUTHENTICATION_REQUEST_CODE,
-                            authenticationRequest);
+                    authenticateWithNeura();
                 }
             }
         });
 
-        mYourNeura.setOnClickListener(isConnected ? new View.OnClickListener() {
+        mRequestPermissions.setVisibility((isConnected && !getResources().getBoolean(R.bool.use_google)) ? View.GONE : View.VISIBLE);
+        mDisconnect.setEnabled(isConnected);
+        loadProgress(false);
+
+        mDisconnect.setOnClickListener(isConnected ? new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getMainActivity().getClient().openNeuraSettingsPanel(getString(R.string.app_uid));
+                NeuraManager.getInstance().getClient().forgetMe(getActivity(), true, new android.os.Handler.Callback() {
+                    @Override
+                    public boolean handleMessage(Message msg) {
+                        setUIState(false, true);
+                        loadProgress(false);
+                        return true;
+                    }
+                });
             }
         } : null);
+    }
 
-        mRequestPermissions.setVisibility((isConnected && !getResources().getBoolean(R.bool.use_google)) ? View.GONE : View.VISIBLE);
+    /**
+     * Authenticate with Neura
+     * Receiving unique neuraUserId and accessToken (for external api calls : https://dev.theneura.com/docs/api/insights)
+     */
+    private void authenticateWithNeura() {
+        AuthenticationRequest request = new AuthenticationRequest(mPermissions);
+        NeuraManager.getInstance().getClient().authenticate(request, new AuthenticateCallback() {
+            @Override
+            public void onSuccess(AuthenticateData authenticateData) {
+                Log.i(getClass().getSimpleName(), "Successfully authenticate with neura. NeuraUserId = "
+                        + authenticateData.getNeuraUserId() + ". AccessToken = " + authenticateData.getAccessToken());
+                setUIState(true, true);
+                NeuraManager.getInstance().getClient().registerPushServerApiKey(getMainActivity(), getString(R.string.google_api_project_number));
+            }
 
-        loadProgress(false);
+            @Override
+            public void onFailure(int errorCode) {
+                Log.e(getClass().getSimpleName(), "Failed to authenticate with neura. Reason : "
+                        + SDKUtils.errorCodeToString(errorCode));
+                loadProgress(false);
+                mRequestPermissions.setEnabled(true);
+            }
+        });
     }
 
     private void setEnableOnButtons(boolean isConnected) {
-        mSendLog.setAlpha(isConnected ? 1 : 0.5f);
-        mSendLog.setEnabled(isConnected);
-        mYourNeura.setAlpha(isConnected ? 1 : 0.5f);
-        mYourNeura.setEnabled(isConnected);
         mSimulateAnEvent.setAlpha(isConnected ? 1 : 0.5f);
         mSimulateAnEvent.setEnabled(isConnected);
         mAddDevice.setEnabled(isConnected);
@@ -237,45 +214,16 @@ public class FragmentMain extends BaseFragment {
         setBottomSymbol(isConnected);
     }
 
-    /**
-     * When calling getMainActivity().getClient().authenticate(NEURA_AUTHENTICATION_REQUEST_CODE, mAuthenticateRequest);
-     * the response is received here.
-     *
-     * @param requestCode
-     * @param resultCode
-     * @param data
-     */
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == NEURA_AUTHENTICATION_REQUEST_CODE && resultCode == FragmentActivity.RESULT_OK) {
-            setUIState(true, true);
-            /**
-             * {@link com.neura.standalonesdk.service.NeuraApiClient#registerPushServerApiKey(Activity, String)}
-             * isn't mandatory, only if you want Neura to handle events and let you know when
-             * an event occurs. Register with your project_id.
-             * Further more, please see explanation in
-             * {@link FragmentSubscribe#subscribeToFromEvent(String, boolean)}
-             */
-            getMainActivity().getClient().registerPushServerApiKey(getMainActivity(), getString(R.string.google_api_project_number));
-            Log.i(getClass().getSimpleName(), "Successfully logged in with accessToken : "
-                    + SDKUtils.extractToken(data));
-        } else {
-            loadProgress(false);
-            mRequestPermissions.setEnabled(true);
-        }
-    }
-
     @Override
     public void loadProgress(boolean enabled) {
         super.loadProgress(enabled);
         mRequestPermissions.setEnabled(!enabled);
-        mDisplayPermissions.setEnabled(!enabled);
+        mDisconnect.setEnabled(!enabled);
     }
 
     private void openSubscribeFragment() {
         FragmentSubscribe frag = new FragmentSubscribe();
         Bundle bundle = new Bundle();
-//        bundle.putParcelableArrayList(MainActivity.EXTRA_PERMISSIONS_LIST, mPermissions);
         frag.setArguments(bundle);
         getMainActivity().openFragment(frag);
     }

@@ -12,9 +12,6 @@ import android.util.Log;
 import com.neura.standalonesdk.events.NeuraEvent;
 import com.neura.standalonesdk.events.NeuraGCMCommandFactory;
 
-/**
- * Created by hadas on 18/07/2016.
- */
 public class NeuraEventsBroadcastReceiver extends BroadcastReceiver {
 
     @Override

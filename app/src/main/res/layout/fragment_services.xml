@@ -37,6 +37,8 @@
         android:layout_below="@+id/situation_text"
         android:layout_marginTop="20dp"
         android:background="@color/neura_sdk_white_transparent"
+        android:padding="5dp"
+        android:scrollbars="vertical"
         android:textSize="16sp" />
 
     <ProgressBar
