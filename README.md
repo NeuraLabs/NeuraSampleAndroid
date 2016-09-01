@@ -14,7 +14,8 @@ Go to <a href="https://dev.theneura.com/docs/getstarted">getting started with Ne
 2. Android studio installed.
 
 ##Before you start
-Go over the <a href="https://dev.theneura.com/docs/guide/android/sdk">android sdk guide</a>.
+1. Go over the <a href="https://dev.theneura.com/docs/guide/android/sdk">android sdk guide</a>.
+2. Neura sdk has fully methods and classes reference, <a href ="http://docs.theneura.com/android/com/neura/standalonesdk/service/NeuraApiClient.html">check it out</a>
 
 After that, you can start playing with this sample.
 
@@ -43,6 +44,14 @@ If you wish to be notified from Neura when an event occurs, you need to <a href=
 In this sample application, the subscriptions is made from ```FragmentSubscribe```, and the once the subscriptions is enabled, you'll be notified of the event. For example, in this screenshot, you'll be notified for the event 'UserWokeUp', but not for 'UserStartedWorkOut'.
 <br/><img src="https://s13.postimg.org/gkqe3jzt3/subscriptions.png" alt="subscriptions" width="210" height="350">
 
+##Testing while developing
+Obviously, it's not very convenient for a developer to receive events on realtime, so, Neura has generated 
+an events simulation, and you can connect it with your application by calling : ```mNeuraApiClient.simulateAnEvent();``` 
+and for example, generate the event : 'UserStartedWalking'.<br/>
+FYI, you need to be logged in to Neura in order to simulate an event.<br/> 
+You can read about it more on <a href ="http://docs.theneura.com/android/com/neura/standalonesdk/service/NeuraApiClient.html#simulateAnEvent--">Simulate event method</a>.
 
 ##Support
-You can ask question and view existing questions with the Neura tag on <a href="https://stackoverflow.com/questions/tagged/neura?sort=newest&pageSize=30">StackOverflow</a>.
+1. Go to <a href="https://dev.theneura.com/docs/getstarted">getting started with Neura</a> for more details.
+2. You can read classes and api methods at <a href ="http://docs.theneura.com/android/com/neura/standalonesdk/service/NeuraApiClient.html">Neura Sdk Reference</a>.
+3. You can ask question and view existing questions with the Neura tag on <a href="https://stackoverflow.com/questions/tagged/neura?sort=newest&pageSize=30">StackOverflow</a>.
