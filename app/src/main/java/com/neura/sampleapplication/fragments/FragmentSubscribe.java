@@ -14,12 +14,12 @@ import android.widget.Toast;
 
 import com.neura.resources.authentication.AuthenticateCallback;
 import com.neura.resources.data.PickerCallback;
+import com.neura.sampleapplication.NeuraEventsService;
 import com.neura.sampleapplication.NeuraManager;
 import com.neura.sampleapplication.R;
 import com.neura.sampleapplication.adapters.PermissionsAdapterDisplay;
 import com.neura.sdk.callbacks.GetPermissionsRequestCallbacks;
 import com.neura.sdk.object.AppSubscription;
-import com.neura.sdk.object.AuthenticationRequest;
 import com.neura.sdk.object.Permission;
 import com.neura.sdk.service.GetSubscriptionsCallbacks;
 import com.neura.sdk.service.SubscriptionRequestCallbacks;
@@ -67,9 +67,9 @@ public class FragmentSubscribe extends BaseFragment implements PermissionsAdapte
      * 1. webhook : define a webhood when creating the application on our devsite.
      * 2. push : Neura will send you a push on event, to your declared receiver on the manifest.
      * In this case, make sure to call {@link com.neura.standalonesdk.service.NeuraApiClient#registerPushServerApiKey(Activity, String)}
-     * after {@link com.neura.standalonesdk.service.NeuraApiClient#authenticate(AuthenticationRequest, AuthenticateCallback)} is completed.
+     * after {@link com.neura.standalonesdk.service.NeuraApiClient#authenticate(com.neura.sdk.object.AuthenticationRequest, AuthenticateCallback)}  is completed.
      * In this application, this is done on {@link FragmentMain#authenticateWithNeura()}.
-     * make manifest adjustments and register a receiver : {@link com.neura.sampleapplication.NeuraEventsBroadcastReceiver}
+     * make manifest adjustments and register a receiver : {@link NeuraEventsService}
      * 3 very important notes :
      * ------------------------
      * - eventIdentifier should be unique for each event, for example,
@@ -91,7 +91,7 @@ public class FragmentSubscribe extends BaseFragment implements PermissionsAdapte
         String eventIdentifier = "YourEventIdentifier_" + eventName;
         /**
          * In this sample, events will be send from Neura directly to the sample, and will be
-         * received on {@link com.neura.sampleapplication.NeuraEventsBroadcastReceiver}
+         * received on {@link NeuraEventsService}
          * the 3rd parameter for {@link com.neura.standalonesdk.service.NeuraApiClient#subscribeToEvent(String, String, boolean, SubscriptionRequestCallbacks)}
          * and {@link com.neura.standalonesdk.service.NeuraApiClient#removeSubscription(String, String, boolean, SubscriptionRequestCallbacks)}
          * indicates whether to use push (true) or webhook(false) in order to receive an event.
@@ -253,7 +253,7 @@ public class FragmentSubscribe extends BaseFragment implements PermissionsAdapte
             Permission left = lhs.getPermission();
             Permission right = rhs.getPermission();
             if ((left.isActive() && right.isActive()) || (!left.isActive() && !right.isActive())) {
-                return right.getDisplayName().compareTo(left.getDisplayName());
+                return left.getDisplayName().compareTo(right.getDisplayName());
             } else if (left.isActive() && !right.isActive())
                 return -1;
             else if (!left.isActive() && right.isActive())

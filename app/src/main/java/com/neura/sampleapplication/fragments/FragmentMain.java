@@ -7,12 +7,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.neura.resources.authentication.AuthenticateCallback;
 import com.neura.resources.authentication.AuthenticateData;
 import com.neura.sampleapplication.NeuraManager;
@@ -130,6 +133,7 @@ public class FragmentMain extends BaseFragment {
         mNeuraStatus.setText(getString(isConnected ? R.string.neura_status_connected : R.string.neura_status_disconnected));
         mNeuraStatus.setTextColor(getResources().getColor(isConnected ? R.color.green_connected : R.color.red_disconnected));
         setEnableOnButtons(isConnected);
+        getView().findViewById(R.id.phone_injection_layout).setVisibility(isConnected ? View.GONE : View.VISIBLE);
         mRequestPermissions.setText(getString(isConnected ?
                 R.string.edit_subscriptions : R.string.connect_request_permissions));
 
@@ -139,7 +143,8 @@ public class FragmentMain extends BaseFragment {
                 if (isConnected)
                     openSubscribeFragment();
                 else {
-                    authenticateWithNeura();
+                    if (!getMainActivity().requestSmsPermission())
+                        authenticateWithNeura();
                 }
             }
         });
@@ -161,21 +166,33 @@ public class FragmentMain extends BaseFragment {
                 });
             }
         } : null);
+
+        ((EditText) getView().findViewById(R.id.phone_number)).setImeOptions(EditorInfo.IME_ACTION_DONE);
     }
 
     /**
      * Authenticate with Neura
      * Receiving unique neuraUserId and accessToken (for external api calls : https://dev.theneura.com/docs/api/insights)
      */
-    private void authenticateWithNeura() {
+    public void authenticateWithNeura() {
         AuthenticationRequest request = new AuthenticationRequest(mPermissions);
+        request.setPhone(((EditText) getView().findViewById(R.id.phone_number)).getText().toString());
         NeuraManager.getInstance().getClient().authenticate(request, new AuthenticateCallback() {
             @Override
             public void onSuccess(AuthenticateData authenticateData) {
                 Log.i(getClass().getSimpleName(), "Successfully authenticate with neura. NeuraUserId = "
                         + authenticateData.getNeuraUserId() + ". AccessToken = " + authenticateData.getAccessToken());
                 setUIState(true, true);
-                NeuraManager.getInstance().getClient().registerPushServerApiKey(getMainActivity(), getString(R.string.google_api_project_number));
+
+                /**
+                 * Go to our push notification guide for more info on how to register receiving
+                 * events via firebase https://dev.theneura.com/docs/guide/android/pushnotification.
+                 * If you're receiving a 'Token already exists error',make sure you've initiated a
+                 * Firebase instance like {@link com.neura.sampleapplication.activities.MainActivity#onCreate(Bundle)}
+                 * http://stackoverflow.com/a/38945375/5130239
+                 */
+                NeuraManager.getInstance().getClient().registerFirebaseToken(getActivity(),
+                        FirebaseInstanceId.getInstance().getToken());
             }
 
             @Override

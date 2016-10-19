@@ -2,26 +2,28 @@ package com.neura.sampleapplication;
 
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
 import com.neura.standalonesdk.events.NeuraEvent;
-import com.neura.standalonesdk.events.NeuraGCMCommandFactory;
+import com.neura.standalonesdk.events.NeuraPushCommandFactory;
 
-public class NeuraEventsBroadcastReceiver extends BroadcastReceiver {
+import java.util.Map;
 
+public class NeuraEventsService extends FirebaseMessagingService {
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onMessageReceived(RemoteMessage message) {
+        Map data = message.getData();
         Log.i(getClass().getSimpleName(), "Received push");
-        if (NeuraGCMCommandFactory.getInstance().isNeuraEvent(intent)) {
-            NeuraEvent event = NeuraGCMCommandFactory.getInstance().getEvent(intent);
+        if (NeuraPushCommandFactory.getInstance().isNeuraEvent(data)) {
+            NeuraEvent event = NeuraPushCommandFactory.getInstance().getEvent(data);
             String eventText = event != null ? event.toString() : "couldn't parse data";
             Log.i(getClass().getSimpleName(), "received Neura event - " + eventText);
-            generateNotification(context, eventText);
+            generateNotification(getApplicationContext(), eventText);
         }
     }
 

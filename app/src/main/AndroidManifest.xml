@@ -2,15 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.neura.sampleapplication">
 
-    <!-- required for GCM push notifications -->
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" /> <!-- Only to minSdk <= 15 -->
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-    <permission
-        android:name="com.neura.sampleapplication.permission.C2D_MESSAGE"
-        android:protectionLevel="signature" />
-
-    <uses-permission android:name="com.neura.sampleapplication.permission.C2D_MESSAGE" />
-    <!-- End of GCM definitions -->
+    <!-- Neura can login reading your user's sms thus making your user not to interact with the ui,
+    kind of automatically login. This isn't mandatory, and you don't require this permission on
+    your application(if this permission isn't set in your manifest, Neura sdk won't do
+    automatically sms login-->
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
 
     <application
         android:allowBackup="true"
@@ -40,16 +36,11 @@
             </intent-filter>
         </receiver>
 
-        <!-- Receiver for GCM push notifications -->
-        <receiver
-            android:name=".NeuraEventsBroadcastReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND">
+        <service android:name=".NeuraEventsService">
             <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-
-                <category android:name="com.neura.sampleapplication" />
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-        </receiver>
+        </service>
     </application>
 
 </manifest>

@@ -18,6 +18,7 @@ public class HandleNeuraStateAlertReceiver extends NeuraStateAlertReceiver {
         Toast.makeText(context, "Neura detected mission permission BUT user already pressed 'Never ask again': " + permission, Toast.LENGTH_LONG).show();
     }
 
+
     @Override
     public void onSensorDisabled(Context context, SensorsManager.Type sensorType) {
         Toast.makeText(context, "Neura detected that " +

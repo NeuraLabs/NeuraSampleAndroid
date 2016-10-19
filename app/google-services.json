@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "367986524672",
+    "firebase_url": "https://neurasample.firebaseio.com",
+    "project_id": "neurasample",
+    "storage_bucket": "neurasample.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:367986524672:android:888fd20a6231e32a",
+        "android_client_info": {
+          "package_name": "com.neura.sampleapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "367986524672-ft3mdsnno8v9kqc7ad3jt1ppuhtukblc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.neura.sampleapplication",
+            "certificate_hash": "6B75009C57AFF3168D005F5618998BB5C60093F5"
+          }
+        },
+        {
+          "client_id": "367986524672-d8uas7ub7afqjo365eanadfvmfdsq3t1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKMP3hy2FCt8U7xzNyVFRQeNmSBKH6p7Q"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "367986524672-d8uas7ub7afqjo365eanadfvmfdsq3t1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

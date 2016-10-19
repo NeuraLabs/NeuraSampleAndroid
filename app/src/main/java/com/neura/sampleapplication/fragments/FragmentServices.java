@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.neura.resources.insights.DailySummaryCallbacks;
+import com.neura.resources.insights.DailySummaryData;
 import com.neura.resources.situation.SituationCallbacks;
 import com.neura.resources.situation.SituationData;
 import com.neura.sampleapplication.NeuraManager;
@@ -18,7 +20,7 @@ public class FragmentServices extends BaseFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_services, null);
+        return inflater.inflate(R.layout.fragment_services, container, false);
     }
 
     @Override
@@ -47,6 +49,22 @@ public class FragmentServices extends BaseFragment {
         //Receiving situation status for 30 minutes ago. fyi - you won't always get followingSituation
         //since if the user hasn't changed its place (stayed at home for the last 30 min,
         //followingSituation will be offline.
+
+        NeuraManager.getInstance().getClient().getDailySummary(
+                System.currentTimeMillis() - 1000 * 60 * 60 * 24, //Calculating for yesterday
+                new DailySummaryCallbacks() {
+                    @Override
+                    public void onSuccess(DailySummaryData dailySummaryData) {
+                        ((TextView) getView().findViewById(R.id.daily_summary_results_text)).setMovementMethod(new ScrollingMovementMethod());
+                        ((TextView) getView().findViewById(R.id.daily_summary_results_text))
+                                .setText(dailySummaryData.toString());
+                    }
+
+                    @Override
+                    public void onFailure(Bundle resultData, int errorCode) {
+
+                    }
+                });
     }
 
 }

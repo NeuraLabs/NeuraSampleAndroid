@@ -4,10 +4,6 @@
     <string name="app_uid">dae8c58c0d6860bb828b25c01f99889bb719513063558e4b5882a4c8c5cb8015</string>
     <string name="app_secret">00f7e687db22aa21c965a1754dcf1f24746129a054dac5f06dfa4e356eb303e3</string>
 
-    <!-- go to our guide : https://dev.theneura.com/docs/guide/android/pushnotification
-    in order to fetch your project's project number-->
-    <string name="google_api_project_number">367986524672</string>
-
     <!-- fragment main strings -->
     <string name="app_permissions_list">Permissions List</string>
     <string name="connect_request_permissions">Connect and request permissions</string>
