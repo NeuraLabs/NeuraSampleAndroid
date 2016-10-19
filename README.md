@@ -35,9 +35,7 @@ If you wish to take this sample application, and integrate your own application,
     ![uid_secret](https://s21.postimg.org/3qpj2gurr/uid_secret.png)
   - Open ```FragmentMain``` file, and copy the permissions you've declared to your application from 'Permissions' section to ```mPermissions``` variable.<br/>
     <img src="https://s17.postimg.org/uwq3v3te7/Screen_Shot_2016_08_30_at_1_27_59_PM.png" alt="permissions_list" width="600" height="150">
-  - Follow our <a href="https://dev.theneura.com/docs/guide/android/pushnotification"> push notification guide</a> in order to generate 'Project Number' and 'server key'.
-    <br/>a.&nbsp;&nbsp;&nbsp;<a href ="https://dev.theneura.com/console">Open your project</a> and set 'server key' to 'Android Push Credentials' under 'Tech Info' section.
-    <br/>b.&nbsp;&nbsp;&nbsp;Open ```strings.xml``` file and set your own 'Project Number' to ```google_api_project_number``` resource.
+  - In order to receive events from Neura, follow our <a href="https://dev.theneura.com/docs/guide/android/pushnotification"> push notification guide</a> to integrate <a href="https://firebase.google.com/docs/cloud-messaging/">Firebase Cloud Messaging</a>.
 
 ##Subscribe to events
 If you wish to be notified from Neura when an event occurs, you need to <a href="https://dev.theneura.com/docs/guide/android/usage#subscribe">subscribe to event</a>.<br/>
