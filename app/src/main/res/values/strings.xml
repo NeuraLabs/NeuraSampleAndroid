@@ -5,9 +5,7 @@
     <string name="app_secret">00f7e687db22aa21c965a1754dcf1f24746129a054dac5f06dfa4e356eb303e3</string>
 
     <!-- fragment main strings -->
-    <string name="app_permissions_list">Permissions List</string>
     <string name="connect_request_permissions">Connect and request permissions</string>
-    <string name="your_neura">My Neura</string>
     <string name="edit_subscriptions">Edit Subscriptions</string>
     <string name="disconnect_from_neura">Disconnect</string>
     <string name="neura_status">Neura status:</string>
@@ -16,8 +14,6 @@
     <string name="services">Services</string>
 
     <!-- fragment permissions list -->
-    <string name="permissions_header">This app is allowed to request the following permissions:</string>
-    <string name="permissions_footer">Permissions list can be edited in Neura Developer Console</string>
     <string name="permissions_subscribe_title">Enable or disable subscriptions based on the permissions approved:</string>
 
     <!-- fragment add device -->

@@ -15,17 +15,17 @@ import com.neura.standalonesdk.events.NeuraPushCommandFactory;
 import java.util.Map;
 
 public class NeuraEventsService extends FirebaseMessagingService {
-    @Override
-    public void onMessageReceived(RemoteMessage message) {
-        Map data = message.getData();
-        Log.i(getClass().getSimpleName(), "Received push");
-        if (NeuraPushCommandFactory.getInstance().isNeuraEvent(data)) {
-            NeuraEvent event = NeuraPushCommandFactory.getInstance().getEvent(data);
-            String eventText = event != null ? event.toString() : "couldn't parse data";
-            Log.i(getClass().getSimpleName(), "received Neura event - " + eventText);
-            generateNotification(getApplicationContext(), eventText);
+        @Override
+        public void onMessageReceived(RemoteMessage message) {
+            Map data = message.getData();
+            Log.i(getClass().getSimpleName(), "Received push");
+            if (NeuraPushCommandFactory.getInstance().isNeuraEvent(data)) {
+                NeuraEvent event = NeuraPushCommandFactory.getInstance().getEvent(data);
+                String eventText = event != null ? event.toString() : "couldn't parse data";
+                Log.i(getClass().getSimpleName(), "received Neura event - " + eventText);
+                generateNotification(getApplicationContext(), eventText);
+            }
         }
-    }
 
     private void generateNotification(Context context, String eventText) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
