@@ -11,6 +11,8 @@ import android.widget.TextView;
 
 import com.neura.resources.insights.DailySummaryCallbacks;
 import com.neura.resources.insights.DailySummaryData;
+import com.neura.resources.insights.SleepProfileCallbacks;
+import com.neura.resources.insights.SleepProfileData;
 import com.neura.resources.situation.SituationCallbacks;
 import com.neura.resources.situation.SituationData;
 import com.neura.sampleapplication.NeuraManager;
@@ -63,6 +65,23 @@ public class FragmentServices extends BaseFragment {
                     @Override
                     public void onFailure(Bundle resultData, int errorCode) {
 
+                    }
+                });
+
+        //average sleep information for the past 5 days
+        NeuraManager.getInstance().getClient().getSleepProfile(System.currentTimeMillis() - 5 * 1000 * 60 * 60 * 24,
+                System.currentTimeMillis(), new SleepProfileCallbacks() {
+                    @Override
+                    public void onSuccess(SleepProfileData sleepProfileData) {
+                        Log.i("hadas", "hadas onSuccess");
+                        ((TextView) getView().findViewById(R.id.sleep_results_text)).setMovementMethod(new ScrollingMovementMethod());
+                        ((TextView) getView().findViewById(R.id.sleep_results_text))
+                                .setText(sleepProfileData.toString());
+                    }
+
+                    @Override
+                    public void onFailure(Bundle bundle, int i) {
+                        Log.i("hadas", "hadas onFailure");
                     }
                 });
     }

@@ -1,5 +1,6 @@
 package com.neura.sampleapplication.fragments;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.os.Message;
 import android.util.Log;
@@ -14,14 +15,19 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.neura.resources.authentication.AuthenticateCallback;
 import com.neura.resources.authentication.AuthenticateData;
+import com.neura.resources.data.PickerCallback;
+import com.neura.sampleapplication.NeuraEventsService;
 import com.neura.sampleapplication.NeuraManager;
 import com.neura.sampleapplication.R;
 import com.neura.sdk.object.AuthenticationRequest;
 import com.neura.sdk.object.Permission;
+import com.neura.sdk.service.SubscriptionRequestCallbacks;
+import com.neura.sdk.util.NeuraUtil;
 import com.neura.standalonesdk.util.SDKUtils;
 
 import java.util.ArrayList;
@@ -134,22 +140,17 @@ public class FragmentMain extends BaseFragment {
         mNeuraStatus.setTextColor(getResources().getColor(isConnected ? R.color.green_connected : R.color.red_disconnected));
         setEnableOnButtons(isConnected);
         getView().findViewById(R.id.phone_injection_layout).setVisibility(isConnected ? View.GONE : View.VISIBLE);
-        mRequestPermissions.setText(getString(isConnected ?
-                R.string.edit_subscriptions : R.string.connect_request_permissions));
+        mRequestPermissions.setText(R.string.connect_request_permissions);
 
         mRequestPermissions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isConnected)
-                    openSubscribeFragment();
-                else {
-                    if (!getMainActivity().requestSmsPermission())
-                        authenticateWithNeura();
-                }
+                if (!getMainActivity().requestSmsPermission())
+                    authenticateWithNeura();
             }
         });
 
-        mRequestPermissions.setVisibility((isConnected && !getResources().getBoolean(R.bool.use_google)) ? View.GONE : View.VISIBLE);
+        mRequestPermissions.setVisibility(isConnected ? View.GONE : View.VISIBLE);
         mDisconnect.setEnabled(isConnected);
         loadProgress(false);
 
@@ -193,6 +194,11 @@ public class FragmentMain extends BaseFragment {
                  */
                 NeuraManager.getInstance().getClient().registerFirebaseToken(getActivity(),
                         FirebaseInstanceId.getInstance().getToken());
+
+                //Subscribing to events - mandatory in order to receive events.
+                for (int i = 0; i < mPermissions.size(); i++) {
+                    subscribeToEvent(mPermissions.get(i).getName());
+                }
             }
 
             @Override
@@ -238,11 +244,67 @@ public class FragmentMain extends BaseFragment {
         mDisconnect.setEnabled(!enabled);
     }
 
-    private void openSubscribeFragment() {
-        FragmentSubscribe frag = new FragmentSubscribe();
-        Bundle bundle = new Bundle();
-        frag.setArguments(bundle);
-        getMainActivity().openFragment(frag);
+    /**
+     * Subscribe / unsubscribe to receive events from Neura.
+     * <br>Neura will continue notifying this event, until
+     * {@link com.neura.standalonesdk.service.NeuraApiClient#removeSubscription(String, String, boolean, SubscriptionRequestCallbacks)}
+     * will be called.
+     * <p>
+     * The second parameter for subscribeToEvent/removeSubscription methods is the eventIdentifier
+     * The event identifier will be part of the data sent to your webhook when Neura identifies
+     * an event for this subscription. It's there for you to attach a user identification, for example.
+     * There are 2 ways you can receive events from Neura :
+     * ----------------------------------------------------
+     * 1. webhook : define a webhood when creating the application on our devsite.
+     * 2. push : Neura will send you a push on event, to your declared receiver on the manifest.
+     * In this case, make sure to call {@link com.neura.standalonesdk.service.NeuraApiClient#registerPushServerApiKey(Activity, String)}
+     * after {@link com.neura.standalonesdk.service.NeuraApiClient#authenticate(com.neura.sdk.object.AuthenticationRequest, AuthenticateCallback)}  is completed.
+     * In this application, this is done on {@link FragmentMain#authenticateWithNeura()}.
+     * make manifest adjustments and register a receiver : {@link NeuraEventsService}
+     * An important note :
+     * ------------------------
+     * EventIdentifier should be unique for each event, for example,
+     * subscribeToEvent(userStartedDriving, iden1, mSubscribeRequest) - success
+     * subscribeToEvent(userFinishedDriving, iden1, mSubscribeRequest) - fail since event
+     * userStartedDriving already used iden1.
+     *
+     * @param eventName event to notify
+     */
+    private void subscribeToEvent(String eventName) {
+        String eventIdentifier = "YourEventIdentifier_" + eventName;
+        NeuraManager.getInstance().getClient().subscribeToEvent(eventName, eventIdentifier, true, mSubscribeRequest);
     }
+
+    private SubscriptionRequestCallbacks mSubscribeRequest = new SubscriptionRequestCallbacks() {
+        @Override
+        public void onSuccess(final String eventName, Bundle resultData, String identifier) {
+            loadProgress(false);
+
+            /**
+             * For events related to locations, if you're subscribing to the event userArrivedHome (fe),
+             * and your user is new on Neura, we don't know his/her home yet. The preferable way is to
+             * wait few days for Neura to detect it, BUT, if you need the home NOW, you can call
+             * {@link com.neura.standalonesdk.service.NeuraApiClient#getMissingDataForEvent(String, PickerCallback)}
+             * which will open a place picker for your user to select his/her home.
+             * Method is disabled in this application.
+             */
+//            NeuraManager.getInstance().getClient().getMissingDataForEvent(
+//                    eventName, new PickerCallback() {
+//                        @Override
+//                        public void onResult(boolean success) {
+//                            Log.i(getClass().getSimpleName(), (success ?
+//                                    "Successfully added data for event : " :
+//                                    "User canceled adding data for event : ") + eventName);
+//                        }
+//                    });
+        }
+
+        @Override
+        public void onFailure(String eventName, Bundle resultData, int errorCode) {
+            Toast.makeText(getMainActivity(),
+                    "Error: Failed to subscribe to event " + eventName + ". Error code: " +
+                            NeuraUtil.errorCodeToString(errorCode), Toast.LENGTH_SHORT).show();
+        }
+    };
 
 }

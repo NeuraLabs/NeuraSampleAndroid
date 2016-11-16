@@ -2,8 +2,8 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:fadeScrollbars="false">
+    android:fadeScrollbars="false"
+    android:fillViewport="true">
 
     <RelativeLayout
         style="@style/neura_sdk_auth_layout"
@@ -69,6 +69,36 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/daily_summary_text"
+            android:layout_marginTop="5dp"
+            android:background="@color/neura_sdk_white_transparent"
+            android:padding="5dp"
+            android:scrollbars="vertical"
+            android:textSize="15sp" />
+
+        <com.neura.dashboard.view.widget.RobotoMediumTextView
+            android:id="@+id/sleep_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/daily_summary_results_text"
+            android:layout_marginTop="20dp"
+            android:text="Sleep Data"
+            android:textColor="@color/neura_sdk_blue_btn"
+            android:textSize="18sp" />
+
+        <com.neura.dashboard.view.widget.RobotoLightTextView
+            android:id="@+id/sleep_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/sleep_header"
+            android:layout_marginTop="5dp"
+            android:text="Average sleep information for the past 5 days"
+            android:textSize="13sp" />
+
+        <com.neura.dashboard.view.widget.RobotoLightTextView
+            android:id="@+id/sleep_results_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/sleep_text"
             android:layout_marginTop="5dp"
             android:background="@color/neura_sdk_white_transparent"
             android:padding="5dp"
