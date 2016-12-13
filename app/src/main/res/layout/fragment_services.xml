@@ -31,7 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/situation_header"
-            android:text="Generate a report for situation - according to a timestamp you set(in this sample - the timestamp is 10 minutes ago), neura will return where the user was before, during and after that timestamp"
+            android:text="Generate a report for situation - according to a timestamp you set(in this sample - the timestamp is 30 minutes ago), neura will return where the user was before, during and after that timestamp"
             android:textSize="13sp" />
 
         <com.neura.dashboard.view.widget.RobotoLightTextView

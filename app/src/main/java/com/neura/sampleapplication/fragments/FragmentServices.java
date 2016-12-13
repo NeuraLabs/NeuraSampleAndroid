@@ -73,7 +73,7 @@ public class FragmentServices extends BaseFragment {
                 System.currentTimeMillis(), new SleepProfileCallbacks() {
                     @Override
                     public void onSuccess(SleepProfileData sleepProfileData) {
-                        Log.i("hadas", "hadas onSuccess");
+                        Log.i(getClass().getSimpleName(), "Received sleep data");
                         ((TextView) getView().findViewById(R.id.sleep_results_text)).setMovementMethod(new ScrollingMovementMethod());
                         ((TextView) getView().findViewById(R.id.sleep_results_text))
                                 .setText(sleepProfileData.toString());
@@ -81,7 +81,7 @@ public class FragmentServices extends BaseFragment {
 
                     @Override
                     public void onFailure(Bundle bundle, int i) {
-                        Log.i("hadas", "hadas onFailure");
+                        Log.i(getClass().getSimpleName(), "Error at receiving sleep data");
                     }
                 });
     }

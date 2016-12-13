@@ -25,6 +25,7 @@ import com.neura.sampleapplication.NeuraEventsService;
 import com.neura.sampleapplication.NeuraManager;
 import com.neura.sampleapplication.R;
 import com.neura.sdk.object.AuthenticationRequest;
+import com.neura.sdk.object.AuthenticationRequest.AuthenticationType;
 import com.neura.sdk.object.Permission;
 import com.neura.sdk.service.SubscriptionRequestCallbacks;
 import com.neura.sdk.util.NeuraUtil;
@@ -71,6 +72,7 @@ public class FragmentMain extends BaseFragment {
          * and initialize mPermissions with them.
          * for example : https://s31.postimg.org/x8phjuza3/Screen_Shot_2016_07_27_at_1.png
          */
+
         mPermissions = new ArrayList<>(Permission.list(new String[]{
                 "userStartedDriving", "userLeftHome", "userArrivedToWork", "userFinishedWalking",
                 "userStartedWorkOut", "userWokeUp", "userLeftGym", "userFinishedRunning",
@@ -79,14 +81,14 @@ public class FragmentMain extends BaseFragment {
                 "userArrivedAtActiveZone", "userIsOnTheWayToWork", "userIsOnTheWayHome",
                 "userIsOnTheWayToActiveZone", "userIsIdle", "userStartedWalking",
                 "userArrivedHomeFromWork", "userArrivedWorkFromHome", "userDetails",
-                "activitySummaryPerPlace", "wellnessProfile", "dailyActivitySummary",
-                "getPersonNodesSemantics", "getLocationNodesSemantics", "sleepData",
-                "getDeviceNodesSemantics", "userSituation", "userPhoneNumber"}));
+                "getPersonNodesSemantics", "userPhoneNumber", "activitySummaryPerPlace",
+                "wellnessProfile", "dailyActivitySummary", "getLocationNodesSemantics", "sleepData",
+                "getDeviceNodesSemantics", "userSituation", "userIsAboutToGoToSleep"}));
 
         mSymbolTop.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                setTopSymbol(SDKUtils.isConnected(getActivity(), NeuraManager.getInstance().getClient()));
+                setTopSymbol(NeuraManager.getInstance().getClient().isLoggedIn());
                 mSymbolTop.getViewTreeObserver().removeGlobalOnLayoutListener(this);
             }
         });
@@ -94,12 +96,12 @@ public class FragmentMain extends BaseFragment {
         mSymbolBottom.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                setBottomSymbol(SDKUtils.isConnected(getActivity(), NeuraManager.getInstance().getClient()));
+                setBottomSymbol(NeuraManager.getInstance().getClient().isLoggedIn());
                 mSymbolBottom.getViewTreeObserver().removeGlobalOnLayoutListener(this);
             }
         });
 
-        setUIState(SDKUtils.isConnected(getActivity(), NeuraManager.getInstance().getClient()), false);
+        setUIState(NeuraManager.getInstance().getClient().isLoggedIn(), false);
 
         mSimulateAnEvent.setOnClickListener(new View.OnClickListener()
 
@@ -272,7 +274,7 @@ public class FragmentMain extends BaseFragment {
      */
     private void subscribeToEvent(String eventName) {
         String eventIdentifier = "YourEventIdentifier_" + eventName;
-        NeuraManager.getInstance().getClient().subscribeToEvent(eventName, eventIdentifier, true, mSubscribeRequest);
+        NeuraManager.getInstance().getClient().subscribeToEvent(eventName, eventIdentifier, mSubscribeRequest);
     }
 
     private SubscriptionRequestCallbacks mSubscribeRequest = new SubscriptionRequestCallbacks() {
