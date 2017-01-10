@@ -27,8 +27,7 @@
 
         <!-- In order to detect system events from neura, please declare a broadcast receiver who
         catches the intent com.neura.android.ACTION_NEURA_STATE_ALERT-->
-        <receiver
-            android:name=".HandleNeuraStateAlertReceiver">
+        <receiver android:name=".HandleNeuraStateAlertReceiver">
             <intent-filter>
                 <action android:name="com.neura.android.ACTION_NEURA_STATE_ALERT" />
             </intent-filter>

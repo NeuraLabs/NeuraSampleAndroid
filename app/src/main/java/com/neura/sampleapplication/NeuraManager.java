@@ -10,11 +10,13 @@ import com.neura.standalonesdk.util.Builder;
  */
 public class NeuraManager {
 
-    private static NeuraManager sInstance = new NeuraManager();
+    private static NeuraManager sInstance;
 
     private NeuraApiClient mNeuraApiClient;
 
     public static NeuraManager getInstance() {
+        if (sInstance == null)
+            sInstance = new NeuraManager();
         return sInstance;
     }
 

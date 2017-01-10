@@ -25,8 +25,7 @@ import com.neura.sampleapplication.NeuraEventsService;
 import com.neura.sampleapplication.NeuraManager;
 import com.neura.sampleapplication.R;
 import com.neura.sdk.object.AuthenticationRequest;
-import com.neura.sdk.object.AuthenticationRequest.AuthenticationType;
-import com.neura.sdk.object.Permission;
+import com.neura.sdk.object.EventDefinition;
 import com.neura.sdk.service.SubscriptionRequestCallbacks;
 import com.neura.sdk.util.NeuraUtil;
 import com.neura.standalonesdk.util.SDKUtils;
@@ -44,8 +43,6 @@ public class FragmentMain extends BaseFragment {
     private ImageView mSymbolTop;
     private ImageView mSymbolBottom;
     private TextView mNeuraStatus;
-
-    private ArrayList<Permission> mPermissions;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -66,24 +63,6 @@ public class FragmentMain extends BaseFragment {
         mAddDevice = (Button) view.findViewById(R.id.add_device);
         mServices = (Button) view.findViewById(R.id.services_button);
         mNeuraStatus = (TextView) view.findViewById(R.id.neura_status);
-
-        /** Copy the permissions you've declared to your application from
-         * https://dev.theneura.com/console/edit/YOUR_APPLICATION - permissions section,
-         * and initialize mPermissions with them.
-         * for example : https://s31.postimg.org/x8phjuza3/Screen_Shot_2016_07_27_at_1.png
-         */
-
-        mPermissions = new ArrayList<>(Permission.list(new String[]{
-                "userStartedDriving", "userLeftHome", "userArrivedToWork", "userFinishedWalking",
-                "userStartedWorkOut", "userWokeUp", "userLeftGym", "userFinishedRunning",
-                "userArrivedToGym", "userArrivedHome", "userStartedSleeping", "userFinishedDriving",
-                "userLeftWork", "userLeftActiveZone", "userStartedRunning",
-                "userArrivedAtActiveZone", "userIsOnTheWayToWork", "userIsOnTheWayHome",
-                "userIsOnTheWayToActiveZone", "userIsIdle", "userStartedWalking",
-                "userArrivedHomeFromWork", "userArrivedWorkFromHome", "userDetails",
-                "getPersonNodesSemantics", "userPhoneNumber", "activitySummaryPerPlace",
-                "wellnessProfile", "dailyActivitySummary", "getLocationNodesSemantics", "sleepData",
-                "getDeviceNodesSemantics", "userSituation", "userIsAboutToGoToSleep"}));
 
         mSymbolTop.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -178,7 +157,7 @@ public class FragmentMain extends BaseFragment {
      * Receiving unique neuraUserId and accessToken (for external api calls : https://dev.theneura.com/docs/api/insights)
      */
     public void authenticateWithNeura() {
-        AuthenticationRequest request = new AuthenticationRequest(mPermissions);
+        AuthenticationRequest request = new AuthenticationRequest();
         request.setPhone(((EditText) getView().findViewById(R.id.phone_number)).getText().toString());
         NeuraManager.getInstance().getClient().authenticate(request, new AuthenticateCallback() {
             @Override
@@ -197,9 +176,11 @@ public class FragmentMain extends BaseFragment {
                 NeuraManager.getInstance().getClient().registerFirebaseToken(getActivity(),
                         FirebaseInstanceId.getInstance().getToken());
 
+                ArrayList<EventDefinition> events = authenticateData.getEvents();
+
                 //Subscribing to events - mandatory in order to receive events.
-                for (int i = 0; i < mPermissions.size(); i++) {
-                    subscribeToEvent(mPermissions.get(i).getName());
+                for (int i = 0; i < events.size(); i++) {
+                    subscribeToEvent(events.get(i).getName());
                 }
             }
 
