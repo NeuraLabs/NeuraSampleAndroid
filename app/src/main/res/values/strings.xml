@@ -11,6 +11,7 @@
     <string name="neura_status_disconnected">Disconnected</string>
     <string name="neura_status_connected">Connected</string>
     <string name="services">Services</string>
+    <string name="add_location">Add a location</string>
 
     <!-- fragment add device -->
     <string name="get_devices">Get All Available Devices</string>

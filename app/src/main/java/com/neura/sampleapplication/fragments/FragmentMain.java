@@ -20,17 +20,16 @@ import android.widget.Toast;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.neura.resources.authentication.AuthenticateCallback;
 import com.neura.resources.authentication.AuthenticateData;
-import com.neura.resources.data.PickerCallback;
 import com.neura.sampleapplication.NeuraEventsService;
 import com.neura.sampleapplication.NeuraManager;
 import com.neura.sampleapplication.R;
 import com.neura.sdk.object.AuthenticationRequest;
-import com.neura.sdk.object.EventDefinition;
 import com.neura.sdk.service.SubscriptionRequestCallbacks;
 import com.neura.sdk.util.NeuraUtil;
 import com.neura.standalonesdk.util.SDKUtils;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class FragmentMain extends BaseFragment {
 
@@ -39,6 +38,7 @@ public class FragmentMain extends BaseFragment {
     private Button mSimulateAnEvent;
     private Button mAddDevice;
     private Button mServices;
+    private Button mAddLocation;
 
     private ImageView mSymbolTop;
     private ImageView mSymbolBottom;
@@ -62,6 +62,7 @@ public class FragmentMain extends BaseFragment {
         mSimulateAnEvent = (Button) view.findViewById(R.id.event_simulation);
         mAddDevice = (Button) view.findViewById(R.id.add_device);
         mServices = (Button) view.findViewById(R.id.services_button);
+        mAddLocation = (Button) view.findViewById(R.id.add_place_btn);
         mNeuraStatus = (TextView) view.findViewById(R.id.neura_status);
 
         mSymbolTop.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -111,6 +112,13 @@ public class FragmentMain extends BaseFragment {
                 getMainActivity().openFragment(new FragmentServices());
             }
         });
+
+        mAddLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getMainActivity().openFragment(new AddLocationFragment());
+            }
+        });
     }
 
     private void setUIState(final boolean isConnected, boolean setSymbol) {
@@ -132,6 +140,7 @@ public class FragmentMain extends BaseFragment {
         });
 
         mRequestPermissions.setVisibility(isConnected ? View.GONE : View.VISIBLE);
+        mServices.setVisibility(isConnected ? View.VISIBLE : View.GONE);
         mDisconnect.setEnabled(isConnected);
         loadProgress(false);
 
@@ -176,11 +185,38 @@ public class FragmentMain extends BaseFragment {
                 NeuraManager.getInstance().getClient().registerFirebaseToken(getActivity(),
                         FirebaseInstanceId.getInstance().getToken());
 
-                ArrayList<EventDefinition> events = authenticateData.getEvents();
+                //TODO put here a list of events that you wish to receive. Beware, that these events must be listed to your application on our dev site. https://dev.theneura.com/console/apps
+                List<String> events = Arrays.asList("userArrivedHome", "userArrivedHomeFromWork",
+                        "userLeftHome", "userArrivedHomeByWalking", "userArrivedHomeByRunning",
+                        "userIsOnTheWayHome", "userIsIdleAtHome", "userStartedWorkOut",
+                        "userFinishedRunning", "userFinishedWorkOut", "userLeftGym",
+                        "userFinishedWalking", "userArrivedToGym", "userIsIdleFor2Hours",
+                        "userStartedWalking", "userIsIdleFor1Hour", "userStartedRunningFromPlace",
+                        "userStartedTransitByWalking", "userStartedRunning",
+                        "userFinishedTransitByWalking", "userFinishedDriving", "userStartedDriving",
+                        "userLeftNode", "userArrivedAtActiveZone", "userArrivedToNode",
+                        "userArrivedAtSchoolCampus", "userArrivedAtAirport", "userArrivedAtClinic",
+                        "userArrivedAtCafe", "userArrivedAtRestaurant", "userLeftSchoolCampus",
+                        "userIsOnTheWayToActiveZone", "userLeftCafe", "userArrivedAtGroceryStore",
+                        "userArrivedAtHospital", "userLeftHospital", "userLeftRestaurant",
+                        "userLeftAirport", "userLeftActiveZone", "userArrivedAtPharmacy",
+                        "userArrivedToWorkByRunning", "userArrivedToWork", "userArrivedWorkFromHome",
+                        "userArrivedToWorkByWalking", "userLeftWork", "userIsOnTheWayToWork",
+                        "userStartedSleeping", "userWokeUp", "userGotUp", "userIsAboutToGoToSleep",
+                        "userStartedDriving", "userLeftHome", "userArrivedToWork",
+                        "userFinishedRunning", "userArrivedToGym", "userFinishedWalking",
+                        "userFinishedTransitByWalking", "userStartedWorkOut", "userWokeUp",
+                        "userLeftGym", "userArrivedHome", "userStartedSleeping",
+                        "userFinishedDriving", "userLeftWork", "userLeftActiveZone",
+                        "userStartedRunning", "userArrivedAtActiveZone", "userIsOnTheWayToWork",
+                        "userIsOnTheWayHome", "userIsOnTheWayToActiveZone", "userIsIdleFor2Hours",
+                        "userIsIdleFor1Hour", "userIsIdleAtHome", "userStartedWalking",
+                        "userStartedTransitByWalking", "userArrivedHomeFromWork",
+                        "userArrivedWorkFromHome", "userIsAboutToGoToSleep");
 
                 //Subscribing to events - mandatory in order to receive events.
                 for (int i = 0; i < events.size(); i++) {
-                    subscribeToEvent(events.get(i).getName());
+                    subscribeToEvent(events.get(i));
                 }
             }
 
@@ -201,6 +237,8 @@ public class FragmentMain extends BaseFragment {
         mAddDevice.setAlpha(isConnected ? 1 : 0.5f);
         mServices.setEnabled(isConnected);
         mServices.setAlpha(isConnected ? 1 : 0.5f);
+        mAddLocation.setEnabled(isConnected);
+        mAddLocation.setAlpha(isConnected ? 1 : 0.5f);
     }
 
     private void setTopSymbol(boolean isConnected) {
@@ -262,24 +300,6 @@ public class FragmentMain extends BaseFragment {
         @Override
         public void onSuccess(final String eventName, Bundle resultData, String identifier) {
             loadProgress(false);
-
-            /**
-             * For events related to locations, if you're subscribing to the event userArrivedHome (fe),
-             * and your user is new on Neura, we don't know his/her home yet. The preferable way is to
-             * wait few days for Neura to detect it, BUT, if you need the home NOW, you can call
-             * {@link com.neura.standalonesdk.service.NeuraApiClient#getMissingDataForEvent(String, PickerCallback)}
-             * which will open a place picker for your user to select his/her home.
-             * Method is disabled in this application.
-             */
-//            NeuraManager.getInstance().getClient().getMissingDataForEvent(
-//                    eventName, new PickerCallback() {
-//                        @Override
-//                        public void onResult(boolean success) {
-//                            Log.i(getClass().getSimpleName(), (success ?
-//                                    "Successfully added data for event : " :
-//                                    "User canceled adding data for event : ") + eventName);
-//                        }
-//                    });
         }
 
         @Override

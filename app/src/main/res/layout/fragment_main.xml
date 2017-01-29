@@ -97,6 +97,16 @@
         android:text="@string/connect_request_permissions"
         android:textColor="@android:color/white" />
 
+    <com.neura.dashboard.view.widget.RobotoButton
+        android:id="@+id/services_button"
+        style="@style/neura_sdk_auth_button"
+        android:layout_above="@+id/layout_device_and_simulate"
+        android:background="@color/neura_sdk_blue_btn"
+        android:elevation="1dp"
+        android:text="@string/services"
+        android:textColor="@android:color/white"
+        android:visibility="gone" />
+
     <LinearLayout
         android:id="@+id/layout_device_and_simulate"
         android:layout_width="match_parent"
@@ -117,14 +127,14 @@
             android:textColor="@android:color/white" />
 
         <com.neura.dashboard.view.widget.RobotoButton
-            android:id="@+id/services_button"
+            android:id="@+id/add_place_btn"
             style="@style/neura_sdk_auth_button"
             android:layout_width="0dp"
             android:layout_marginLeft="5dp"
             android:layout_weight="1"
             android:background="@color/neura_sdk_blue_btn"
             android:elevation="1dp"
-            android:text="@string/services"
+            android:text="@string/add_location"
             android:textColor="@android:color/white" />
     </LinearLayout>
 
