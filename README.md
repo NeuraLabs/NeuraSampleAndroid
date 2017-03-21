@@ -13,7 +13,7 @@ Go to <a href="https://dev.theneura.com/docs/getstarted">getting started with Ne
 2. Android studio installed.
 
 ##Before you start
-1. Go over the <a href="https://dev.theneura.com/docs/guide/android/sdk">android sdk guide</a>.
+1. Go over the <a href="https://dev.theneura.com/docs/guide/android/setup">android sdk guide</a>.
 2. Neura sdk has fully methods and classes reference, <a href ="http://docs.theneura.com/android/com/neura/standalonesdk/service/NeuraApiClient.html">check it out</a>
 
 After that, you can start playing with this sample.
