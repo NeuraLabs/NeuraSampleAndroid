@@ -1,6 +1,5 @@
 # NeuraSampleAndroid
 
-<img src="https://s9.postimg.org/raqmwkv5r/permissions.png" alt="permissions" width="210" height="350">
 <img src="https://s11.postimg.org/gtxw1agb7/neura_login.png" alt="neura_login" width="210" height="350">
 <img src="https://s14.postimg.org/fmnzmnxox/situation.png" alt="situation" width="210" height="350">
 <img src="https://s21.postimg.org/9yeirqdc7/missing_gym.png" alt="missing_gym" width="210" height="350">
@@ -36,11 +35,6 @@ If you wish to take this sample application, and integrate your own application,
   - Open ```FragmentMain``` file, and copy the permissions you've declared to your application from 'Permissions' section to ```mPermissions``` variable.<br/>
     <img src="https://s17.postimg.org/uwq3v3te7/Screen_Shot_2016_08_30_at_1_27_59_PM.png" alt="permissions_list" width="600" height="150">
   - In order to receive events from Neura, follow our <a href="https://dev.theneura.com/docs/guide/android/pushnotification"> push notification guide</a> to integrate <a href="https://firebase.google.com/docs/cloud-messaging/">Firebase Cloud Messaging</a>.
-
-##Subscribe to events
-If you wish to be notified from Neura when an event occurs, you need to <a href="https://dev.theneura.com/docs/guide/android/usage#subscribe">subscribe to event</a>.<br/>
-In this sample application, the subscriptions is made from ```FragmentSubscribe```, and the once the subscriptions is enabled, you'll be notified of the event. For example, in this screenshot, you'll be notified for the event 'UserWokeUp', but not for 'UserStartedWorkOut'.
-<br/><img src="https://s13.postimg.org/gkqe3jzt3/subscriptions.png" alt="subscriptions" width="210" height="350">
 
 ##Testing while developing
 Obviously, it's not very convenient for a developer to receive events on realtime, so, Neura has generated 
