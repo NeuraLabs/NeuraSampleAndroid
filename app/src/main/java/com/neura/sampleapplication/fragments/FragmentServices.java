@@ -28,24 +28,29 @@ public class FragmentServices extends BaseFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         mProgress = (ProgressBar) view.findViewById(R.id.progress);
         mProgress.setVisibility(View.VISIBLE);
 
         NeuraManager.getInstance().getClient().getUserSituation(new SituationCallbacks() {
             @Override
             public void onSuccess(SituationData situationData) {
-                Log.i(getClass().getSimpleName(), "Situation received successfully : " + situationData.toString());
-                ((TextView) getView().findViewById(R.id.situation_results_text)).setMovementMethod(new ScrollingMovementMethod());
-                ((TextView) getView().findViewById(R.id.situation_results_text))
-                        .setText(situationData.toString());
-                //SituationData class overrides to string, so you'll be displayed with the results.
-                mProgress.setVisibility(View.GONE);
+                if (getActivity() != null) {
+                    Log.i(getClass().getSimpleName(), "Situation received successfully : " + situationData.toString());
+                    ((TextView) getView().findViewById(R.id.situation_results_text)).setMovementMethod(new ScrollingMovementMethod());
+                    ((TextView) getView().findViewById(R.id.situation_results_text))
+                            .setText(situationData.toString());
+                    //SituationData class overrides to string, so you'll be displayed with the results.
+                    if (getActivity() != null)
+                        mProgress.setVisibility(View.GONE);
+                }
             }
 
             @Override
             public void onFailure(Bundle bundle, int i) {
                 Log.e(getClass().getSimpleName(), "Failed to receive situation");
-                mProgress.setVisibility(View.GONE);
+                if (getActivity() != null)
+                    mProgress.setVisibility(View.GONE);
             }
         }, System.currentTimeMillis() - 1000 * 60 * 30);
         //Receiving situation status for 30 minutes ago. fyi - you won't always get followingSituation
@@ -57,9 +62,11 @@ public class FragmentServices extends BaseFragment {
                 new DailySummaryCallbacks() {
                     @Override
                     public void onSuccess(DailySummaryData dailySummaryData) {
-                        ((TextView) getView().findViewById(R.id.daily_summary_results_text)).setMovementMethod(new ScrollingMovementMethod());
-                        ((TextView) getView().findViewById(R.id.daily_summary_results_text))
-                                .setText(dailySummaryData.toString());
+                        if (getActivity() != null) {
+                            ((TextView) getView().findViewById(R.id.daily_summary_results_text)).setMovementMethod(new ScrollingMovementMethod());
+                            ((TextView) getView().findViewById(R.id.daily_summary_results_text))
+                                    .setText(dailySummaryData.toString());
+                        }
                     }
 
                     @Override
@@ -73,10 +80,12 @@ public class FragmentServices extends BaseFragment {
                 System.currentTimeMillis(), new SleepProfileCallbacks() {
                     @Override
                     public void onSuccess(SleepProfileData sleepProfileData) {
-                        Log.i(getClass().getSimpleName(), "Received sleep data");
-                        ((TextView) getView().findViewById(R.id.sleep_results_text)).setMovementMethod(new ScrollingMovementMethod());
-                        ((TextView) getView().findViewById(R.id.sleep_results_text))
-                                .setText(sleepProfileData.toString());
+                        if (getActivity() != null) {
+                            Log.i(getClass().getSimpleName(), "Received sleep data");
+                            ((TextView) getView().findViewById(R.id.sleep_results_text)).setMovementMethod(new ScrollingMovementMethod());
+                            ((TextView) getView().findViewById(R.id.sleep_results_text))
+                                    .setText(sleepProfileData.toString());
+                        }
                     }
 
                     @Override

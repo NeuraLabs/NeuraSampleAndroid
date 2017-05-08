@@ -11,6 +11,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.neura.standalonesdk.events.NeuraEvent;
 import com.neura.standalonesdk.events.NeuraPushCommandFactory;
+import com.neura.standalonesdk.service.NeuraApiClient;
 
 import java.util.Map;
 

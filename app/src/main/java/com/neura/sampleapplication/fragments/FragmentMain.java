@@ -147,18 +147,24 @@ public class FragmentMain extends BaseFragment {
         mDisconnect.setOnClickListener(isConnected ? new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                NeuraManager.getInstance().getClient().forgetMe(getActivity(), true, new android.os.Handler.Callback() {
-                    @Override
-                    public boolean handleMessage(Message msg) {
-                        setUIState(false, true);
-                        loadProgress(false);
-                        return true;
-                    }
-                });
+                disconnect();
             }
         } : null);
 
         ((EditText) getView().findViewById(R.id.phone_number)).setImeOptions(EditorInfo.IME_ACTION_DONE);
+    }
+
+    private void disconnect() {
+        loadProgress(true);
+        NeuraManager.getInstance().getClient().forgetMe(getActivity(), true, new android.os.Handler.Callback() {
+            @Override
+            public boolean handleMessage(Message msg) {
+                loadProgress(false);
+                if (msg.arg1 == 1)
+                    setUIState(NeuraManager.getInstance().getClient().isLoggedIn(), true);
+                return true;
+            }
+        });
     }
 
     /**
@@ -191,11 +197,11 @@ public class FragmentMain extends BaseFragment {
                         "userIsOnTheWayHome", "userIsIdleAtHome", "userStartedWorkOut",
                         "userFinishedRunning", "userFinishedWorkOut", "userLeftGym",
                         "userFinishedWalking", "userArrivedToGym", "userIsIdleFor2Hours",
-                        "userStartedWalking", "userIsIdleFor1Hour", "userStartedRunningFromPlace",
+                        "userStartedWalking", "userIsIdleFor1Hour",
                         "userStartedTransitByWalking", "userStartedRunning",
                         "userFinishedTransitByWalking", "userFinishedDriving", "userStartedDriving",
-                        "userLeftNode", "userArrivedAtActiveZone", "userArrivedToNode",
-                        "userArrivedAtSchoolCampus", "userArrivedAtAirport", "userArrivedAtClinic",
+                        "userArrivedAtActiveZone", "userArrivedAtSchoolCampus",
+                        "userArrivedAtAirport", "userArrivedAtClinic",
                         "userArrivedAtCafe", "userArrivedAtRestaurant", "userLeftSchoolCampus",
                         "userIsOnTheWayToActiveZone", "userLeftCafe", "userArrivedAtGroceryStore",
                         "userArrivedAtHospital", "userLeftHospital", "userLeftRestaurant",
@@ -263,6 +269,9 @@ public class FragmentMain extends BaseFragment {
         super.loadProgress(enabled);
         mRequestPermissions.setEnabled(!enabled);
         mDisconnect.setEnabled(!enabled);
+        mServices.setEnabled(!enabled);
+        mAddLocation.setEnabled(!enabled);
+        mSimulateAnEvent.setEnabled(!enabled);
     }
 
     /**
@@ -304,9 +313,10 @@ public class FragmentMain extends BaseFragment {
 
         @Override
         public void onFailure(String eventName, Bundle resultData, int errorCode) {
-            Toast.makeText(getMainActivity(),
-                    "Error: Failed to subscribe to event " + eventName + ". Error code: " +
-                            NeuraUtil.errorCodeToString(errorCode), Toast.LENGTH_SHORT).show();
+            if (getActivity() != null)
+                Toast.makeText(getMainActivity(),
+                        "Error: Failed to subscribe to event " + eventName + ". Error code: " +
+                                NeuraUtil.errorCodeToString(errorCode), Toast.LENGTH_SHORT).show();
         }
     };
 

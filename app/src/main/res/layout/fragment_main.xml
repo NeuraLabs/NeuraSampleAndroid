@@ -17,6 +17,14 @@
         android:layout_marginTop="5dp"
         android:textSize="13sp" />
 
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/version"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -169,13 +177,5 @@
             android:text="@string/disconnect_from_neura"
             android:textColor="@color/neura_sdk_blue_btn" />
     </LinearLayout>
-
-    <ProgressBar
-        android:id="@+id/progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/request_permissions_btn"
-        android:layout_centerHorizontal="true"
-        android:visibility="gone" />
 
 </RelativeLayout>

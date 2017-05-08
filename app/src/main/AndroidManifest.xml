@@ -2,6 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.neura.sampleapplication">
 
+    <!-- Neura can login reading your user's sms thus making your user not to interact with the ui,
+    kind of automatically login. This isn't mandatory, and you don't require this permission on
+    your application(if this permission isn't set in your manifest, Neura sdk won't do
+    automatically sms login-->
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/big_neura_circle"
