@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/NeuraSample.iml" filepath="$PROJECT_DIR$/NeuraSample.iml" />
+      <module fileurl="file://C:\Users\Jack\AndroidStudioProjects\NeuraSampleAndroid\NeuraSample.iml" filepath="C:\Users\Jack\AndroidStudioProjects\NeuraSampleAndroid\NeuraSample.iml" />
+      <module fileurl="file://$PROJECT_DIR$/NeuraSampleAndroid.iml" filepath="$PROJECT_DIR$/NeuraSampleAndroid.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

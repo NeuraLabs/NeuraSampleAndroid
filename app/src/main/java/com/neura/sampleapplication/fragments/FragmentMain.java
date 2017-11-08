@@ -1,6 +1,8 @@
 package com.neura.sampleapplication.fragments;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Message;
 import android.util.Log;
@@ -33,7 +35,7 @@ import java.util.List;
 
 public class FragmentMain extends BaseFragment {
 
-    private Button mRequestPermissions;
+    public Button mRequestPermissions;
     private Button mDisconnect;
     private Button mSimulateAnEvent;
     private Button mAddDevice;
@@ -83,25 +85,19 @@ public class FragmentMain extends BaseFragment {
 
         setUIState(NeuraManager.getInstance().getClient().isLoggedIn(), false);
 
-        mSimulateAnEvent.setOnClickListener(new View.OnClickListener()
+        mSimulateAnEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NeuraManager.getInstance().getClient().simulateAnEvent();
+            }
+        });
 
-                                            {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    NeuraManager.getInstance().getClient().simulateAnEvent();
-                                                }
-                                            }
-        );
-
-        mAddDevice.setOnClickListener(new View.OnClickListener()
-
-                                      {
-                                          @Override
-                                          public void onClick(View v) {
-                                              getMainActivity().openFragment(new FragmentDeviceOperations());
-                                          }
-                                      }
-        );
+        mAddDevice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getMainActivity().openFragment(new FragmentDeviceOperations());
+            }
+        });
 
         ((TextView) view.findViewById(R.id.version)).
                 setText("Sdk Version : " + NeuraManager.getInstance().getClient().getSdkVersion());
@@ -121,7 +117,12 @@ public class FragmentMain extends BaseFragment {
         });
     }
 
-    private void setUIState(final boolean isConnected, boolean setSymbol) {
+    public void authenticateWithNeura(){
+        String phoneNumber = ((EditText)getView().findViewById(R.id.phone_number)).getText().toString();
+        NeuraManager.authenticateByPhone(phoneNumber, FragmentMain.this);
+    }
+
+    public void setUIState(final boolean isConnected, boolean setSymbol) {
         if (setSymbol)
             setSymbols(isConnected);
         loadProgress(!isConnected);
@@ -134,8 +135,25 @@ public class FragmentMain extends BaseFragment {
         mRequestPermissions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!getMainActivity().requestSmsPermission())
-                    authenticateWithNeura();
+                if (!getMainActivity().requestSmsPermission()) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setMessage(R.string.alert_authenticate_dialog)
+                            .setPositiveButton(R.string.auth_phone, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    String phoneNumber = ((EditText)getView().findViewById(R.id.phone_number)).getText().toString();
+                                    NeuraManager.authenticateByPhone(phoneNumber, FragmentMain.this);
+                                }
+                            })
+                            .setNeutralButton(R.string.auth_anon, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    NeuraManager.authenticateAnonymously(FragmentMain.this);
+                                }
+                            });
+                    AlertDialog popup = builder.create();
+                    popup.show();
+                }
             }
         });
 
@@ -156,6 +174,7 @@ public class FragmentMain extends BaseFragment {
 
     private void disconnect() {
         loadProgress(true);
+        System.out.println(NeuraManager.getInstance().getClient().isLoggedIn());
         NeuraManager.getInstance().getClient().forgetMe(getActivity(), true, new android.os.Handler.Callback() {
             @Override
             public boolean handleMessage(Message msg) {
@@ -163,75 +182,6 @@ public class FragmentMain extends BaseFragment {
                 if (msg.arg1 == 1)
                     setUIState(NeuraManager.getInstance().getClient().isLoggedIn(), true);
                 return true;
-            }
-        });
-    }
-
-    /**
-     * Authenticate with Neura
-     * Receiving unique neuraUserId and accessToken (for external api calls : https://dev.theneura.com/docs/api/insights)
-     */
-    public void authenticateWithNeura() {
-        AuthenticationRequest request = new AuthenticationRequest();
-        request.setPhone(((EditText) getView().findViewById(R.id.phone_number)).getText().toString());
-        NeuraManager.getInstance().getClient().authenticate(request, new AuthenticateCallback() {
-            @Override
-            public void onSuccess(AuthenticateData authenticateData) {
-                Log.i(getClass().getSimpleName(), "Successfully authenticate with neura. NeuraUserId = "
-                        + authenticateData.getNeuraUserId() + ". AccessToken = " + authenticateData.getAccessToken());
-                setUIState(true, true);
-
-                /**
-                 * Go to our push notification guide for more info on how to register receiving
-                 * events via firebase https://dev.theneura.com/docs/guide/android/pushnotification.
-                 * If you're receiving a 'Token already exists error',make sure you've initiated a
-                 * Firebase instance like {@link com.neura.sampleapplication.activities.MainActivity#onCreate(Bundle)}
-                 * http://stackoverflow.com/a/38945375/5130239
-                 */
-                NeuraManager.getInstance().getClient().registerFirebaseToken(getActivity(),
-                        FirebaseInstanceId.getInstance().getToken());
-
-                //TODO put here a list of events that you wish to receive. Beware, that these events must be listed to your application on our dev site. https://dev.theneura.com/console/apps
-                List<String> events = Arrays.asList("userArrivedHome", "userArrivedHomeFromWork",
-                        "userLeftHome", "userArrivedHomeByWalking", "userArrivedHomeByRunning",
-                        "userIsOnTheWayHome", "userIsIdleAtHome", "userStartedWorkOut",
-                        "userFinishedRunning", "userFinishedWorkOut", "userLeftGym",
-                        "userFinishedWalking", "userArrivedToGym", "userIsIdleFor2Hours",
-                        "userStartedWalking", "userIsIdleFor1Hour",
-                        "userStartedTransitByWalking", "userStartedRunning",
-                        "userFinishedTransitByWalking", "userFinishedDriving", "userStartedDriving",
-                        "userArrivedAtActiveZone", "userArrivedAtSchoolCampus",
-                        "userArrivedAtAirport", "userArrivedAtClinic",
-                        "userArrivedAtCafe", "userArrivedAtRestaurant", "userLeftSchoolCampus",
-                        "userIsOnTheWayToActiveZone", "userLeftCafe", "userArrivedAtGroceryStore",
-                        "userArrivedAtHospital", "userLeftHospital", "userLeftRestaurant",
-                        "userLeftAirport", "userLeftActiveZone", "userArrivedAtPharmacy",
-                        "userArrivedToWorkByRunning", "userArrivedToWork", "userArrivedWorkFromHome",
-                        "userArrivedToWorkByWalking", "userLeftWork", "userIsOnTheWayToWork",
-                        "userStartedSleeping", "userWokeUp", "userGotUp", "userIsAboutToGoToSleep",
-                        "userStartedDriving", "userLeftHome", "userArrivedToWork",
-                        "userFinishedRunning", "userArrivedToGym", "userFinishedWalking",
-                        "userFinishedTransitByWalking", "userStartedWorkOut", "userWokeUp",
-                        "userLeftGym", "userArrivedHome", "userStartedSleeping",
-                        "userFinishedDriving", "userLeftWork", "userLeftActiveZone",
-                        "userStartedRunning", "userArrivedAtActiveZone", "userIsOnTheWayToWork",
-                        "userIsOnTheWayHome", "userIsOnTheWayToActiveZone", "userIsIdleFor2Hours",
-                        "userIsIdleFor1Hour", "userIsIdleAtHome", "userStartedWalking",
-                        "userStartedTransitByWalking", "userArrivedHomeFromWork",
-                        "userArrivedWorkFromHome", "userIsAboutToGoToSleep");
-
-                //Subscribing to events - mandatory in order to receive events.
-                for (int i = 0; i < events.size(); i++) {
-                    subscribeToEvent(events.get(i));
-                }
-            }
-
-            @Override
-            public void onFailure(int errorCode) {
-                Log.e(getClass().getSimpleName(), "Failed to authenticate with neura. Reason : "
-                        + SDKUtils.errorCodeToString(errorCode));
-                loadProgress(false);
-                mRequestPermissions.setEnabled(true);
             }
         });
     }
@@ -300,7 +250,7 @@ public class FragmentMain extends BaseFragment {
      *
      * @param eventName event to notify
      */
-    private void subscribeToEvent(String eventName) {
+    public void subscribeToEvent(String eventName) {
         String eventIdentifier = "YourEventIdentifier_" + eventName;
         NeuraManager.getInstance().getClient().subscribeToEvent(eventName, eventIdentifier, mSubscribeRequest);
     }
