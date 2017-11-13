@@ -2,6 +2,7 @@ package com.neura.sampleapplication;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
 
@@ -12,6 +13,8 @@ import com.neura.resources.authentication.AnonymousAuthenticationStateListener;
 import com.neura.resources.authentication.AuthenticateCallback;
 import com.neura.resources.authentication.AuthenticateData;
 import com.neura.resources.authentication.AuthenticationState;
+import com.neura.resources.user.UserDetails;
+import com.neura.resources.user.UserDetailsCallbacks;
 import com.neura.sampleapplication.fragments.FragmentMain;
 import com.neura.sdk.object.AnonymousAuthenticationRequest;
 import com.neura.sdk.object.AuthenticationRequest;
@@ -85,21 +88,8 @@ public class NeuraManager {
                 case AuthenticatedAnonymously:
                     // successful authentication
                     NeuraManager.getInstance().getClient().unregisterAuthStateListener();
+                    getUserDetails();
 
-//                    NeuraManager.getInstance().getClient().getUserDetails(new UserDetailsCallbacks() {
-//                        @Override
-//                        public void onSuccess(UserDetails userDetails) {
-//                            if (getActivity() != null) {
-//                                userDetails.getData().getNeuraId();
-//                                NeuraManager.getInstance().getClient().getUserAccessToken();
-//                            }
-//                        }
-//
-//                        @Override
-//                        public void onFailure(Bundle resultData, int errorCode) {
-//
-//                        }
-//                    });
                     break;
                 case NotAuthenticated:
                 case FailedReceivingAccessToken:
@@ -110,6 +100,24 @@ public class NeuraManager {
             }
         }
     };
+
+    private static void getUserDetails() {
+        NeuraManager.getInstance().getClient().getUserDetails(new UserDetailsCallbacks() {
+            @Override
+            public void onSuccess(UserDetails userDetails) {
+                if (userDetails.getData() != null) {
+                    // Do something with this information
+                    userDetails.getData().getNeuraId();
+                    NeuraManager.getInstance().getClient().getUserAccessToken();
+                }
+            }
+
+            @Override
+            public void onFailure(Bundle resultData, int errorCode) {
+
+            }
+        });
+    }
 
     public static void authenticateAnonymously(final FragmentMain context) {
         if (!isMinVersion()) {
@@ -172,32 +180,11 @@ public class NeuraManager {
 
                 //TODO put here a list of events that you wish to receive. Beware, that these events must be listed to your application on our dev site. https://dev.theneura.com/console/apps
                 List<String> events = Arrays.asList("userArrivedHome", "userArrivedHomeFromWork",
-                        "userLeftHome", "userArrivedHomeByWalking", "userArrivedHomeByRunning",
-                        "userIsOnTheWayHome", "userIsIdleAtHome", "userStartedWorkOut",
-                        "userFinishedRunning", "userFinishedWorkOut", "userLeftGym",
-                        "userFinishedWalking", "userArrivedToGym", "userIsIdleFor2Hours",
-                        "userStartedWalking", "userIsIdleFor1Hour",
-                        "userStartedTransitByWalking", "userStartedRunning",
-                        "userFinishedTransitByWalking", "userFinishedDriving", "userStartedDriving",
-                        "userArrivedAtActiveZone", "userArrivedAtSchoolCampus",
-                        "userArrivedAtAirport", "userArrivedAtClinic",
-                        "userArrivedAtCafe", "userArrivedAtRestaurant", "userLeftSchoolCampus",
-                        "userIsOnTheWayToActiveZone", "userLeftCafe", "userArrivedAtGroceryStore",
-                        "userArrivedAtHospital", "userLeftHospital", "userLeftRestaurant",
-                        "userLeftAirport", "userLeftActiveZone", "userArrivedAtPharmacy",
-                        "userArrivedToWorkByRunning", "userArrivedToWork", "userArrivedWorkFromHome",
-                        "userArrivedToWorkByWalking", "userLeftWork", "userIsOnTheWayToWork",
-                        "userStartedSleeping", "userWokeUp", "userGotUp", "userIsAboutToGoToSleep",
-                        "userStartedDriving", "userLeftHome", "userArrivedToWork",
-                        "userFinishedRunning", "userArrivedToGym", "userFinishedWalking",
-                        "userFinishedTransitByWalking", "userStartedWorkOut", "userWokeUp",
-                        "userLeftGym", "userArrivedHome", "userStartedSleeping",
-                        "userFinishedDriving", "userLeftWork", "userLeftActiveZone",
-                        "userStartedRunning", "userArrivedAtActiveZone", "userIsOnTheWayToWork",
-                        "userIsOnTheWayHome", "userIsOnTheWayToActiveZone", "userIsIdleFor2Hours",
-                        "userIsIdleFor1Hour", "userIsIdleAtHome", "userStartedWalking",
-                        "userStartedTransitByWalking", "userArrivedHomeFromWork",
-                        "userArrivedWorkFromHome", "userIsAboutToGoToSleep");
+                        "userLeftHome", "userArrivedHome",
+                        "userStartedWalking", "userStartedRunning",
+                        "userArrivedToWork", "userLeftWork",
+                        "userFinishedRunning", "userFinishedWalking",
+                        "userFinishedDriving", "userStartedDriving");
 
                 //Subscribing to events - mandatory in order to receive events.
                 for (int i = 0; i < events.size(); i++) {
