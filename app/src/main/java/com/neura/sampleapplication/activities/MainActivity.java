@@ -80,7 +80,7 @@ public class MainActivity extends Activity {
         //It doesn't matter if the user approves or rejects the sms request, we'll show authentication
         //screen regardless.
         ((FragmentMain) getFragmentManager().findFragmentById
-                (R.id.fragment_container)).authenticateWithNeura();
+                (R.id.fragment_container)).authenticateByPhone();
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }

@@ -20,8 +20,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.neura.resources.authentication.AnonymousAuthenticationStateListener;
 import com.neura.resources.authentication.AuthenticateCallback;
 import com.neura.resources.authentication.AuthenticateData;
+import com.neura.resources.authentication.AuthenticationState;
+import com.neura.resources.user.UserDetails;
+import com.neura.resources.user.UserDetailsCallbacks;
 import com.neura.sampleapplication.NeuraEventsService;
 import com.neura.sampleapplication.NeuraManager;
 import com.neura.sampleapplication.R;
@@ -117,9 +121,93 @@ public class FragmentMain extends BaseFragment {
         });
     }
 
-    public void authenticateWithNeura(){
-        String phoneNumber = ((EditText)getView().findViewById(R.id.phone_number)).getText().toString();
-        NeuraManager.authenticateByPhone(phoneNumber, FragmentMain.this);
+    /**
+     * Authenticate with Neura
+     * Receiving unique neuraUserId and accessToken (for external api calls : https://dev.theneura.com/docs/api/insights)
+     */
+    public void authenticateByPhone() {
+        AuthenticationRequest request = new AuthenticationRequest();
+        request.setPhone(((EditText) getView().findViewById(R.id.phone_number)).getText().toString());
+        NeuraManager.getInstance().getClient().authenticate(request, new AuthenticateCallback() {
+            @Override
+            public void onSuccess(AuthenticateData authenticateData) {
+                Log.i(getClass().getSimpleName(), "Successfully authenticate with neura. NeuraUserId = "
+                        + authenticateData.getNeuraUserId() + ". AccessToken = " + authenticateData.getAccessToken());
+                setUIState(true, true);
+
+                /**
+                 * Go to our push notification guide for more info on how to register receiving
+                 * events via firebase https://dev.theneura.com/docs/guide/android/pushnotification.
+                 * If you're receiving a 'Token already exists error',make sure you've initiated a
+                 * Firebase instance like {@link com.neura.sampleapplication.activities.MainActivity#onCreate(Bundle)}
+                 * http://stackoverflow.com/a/38945375/5130239
+                 */
+                NeuraManager.getInstance().getClient().registerFirebaseToken(getActivity(),
+                        FirebaseInstanceId.getInstance().getToken());
+
+                //TODO put here a list of events that you wish to receive. Beware, that these events must be listed to your application on our dev site. https://dev.theneura.com/console/apps
+                List<String> events = Arrays.asList("userLeftHome", "userArrivedHome",
+                        "userStartedWalking", "userStartedRunning",
+                        "userArrivedToWork", "userLeftWork",
+                        "userFinishedRunning", "userFinishedWalking",
+                        "userFinishedDriving", "userStartedDriving");
+
+                //Subscribing to events - mandatory in order to receive events.
+                for (int i = 0; i < events.size(); i++) {
+                    subscribeToEvent(events.get(i));
+                }
+            }
+
+            @Override
+            public void onFailure(int errorCode) {
+                Log.e(getClass().getSimpleName(), "Failed to authenticate with neura. Reason : "
+                        + SDKUtils.errorCodeToString(errorCode));
+                loadProgress(false);
+                mRequestPermissions.setEnabled(true);
+            }
+        });
+    }
+
+    //create a call back to handle authentication stages.
+    AnonymousAuthenticationStateListener silentStateListener = new AnonymousAuthenticationStateListener() {
+        @Override
+        public void onStateChanged(AuthenticationState state) {
+            switch (state) {
+                case AccessTokenRequested:
+                    break;
+                case AuthenticatedAnonymously:
+                    // successful authentication
+                    NeuraManager.getInstance().getClient().unregisterAuthStateListener();
+                    getUserDetails();
+                    setUIState(true, true);
+                    break;
+                case NotAuthenticated:
+                case FailedReceivingAccessToken:
+                    // Authentication failed indefinitely. a good opportunity to retry the authentication flow
+                    NeuraManager.getInstance().getClient().unregisterAuthStateListener();
+                    loadProgress(false);
+                    mRequestPermissions.setEnabled(true);
+                    break;
+                default:
+            }
+        }
+    };
+
+    private void getUserDetails() {
+        NeuraManager.getInstance().getClient().getUserDetails(new UserDetailsCallbacks() {
+            @Override
+            public void onSuccess(UserDetails userDetails) {
+                if (userDetails.getData() != null) {
+                    // Do something with this information
+                    userDetails.getData().getNeuraId();
+                    NeuraManager.getInstance().getClient().getUserAccessToken();
+                }
+            }
+
+            @Override
+            public void onFailure(Bundle resultData, int errorCode) {
+            }
+        });
     }
 
     public void setUIState(final boolean isConnected, boolean setSymbol) {
@@ -141,14 +229,13 @@ public class FragmentMain extends BaseFragment {
                             .setPositiveButton(R.string.auth_phone, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    String phoneNumber = ((EditText)getView().findViewById(R.id.phone_number)).getText().toString();
-                                    NeuraManager.authenticateByPhone(phoneNumber, FragmentMain.this);
+                                    authenticateByPhone();
                                 }
                             })
                             .setNeutralButton(R.string.auth_anon, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    NeuraManager.authenticateAnonymously(FragmentMain.this);
+                                    NeuraManager.authenticateAnonymously(silentStateListener);
                                 }
                             });
                     AlertDialog popup = builder.create();
@@ -239,7 +326,7 @@ public class FragmentMain extends BaseFragment {
      * 2. push : Neura will send you a push on event, to your declared receiver on the manifest.
      * In this case, make sure to call {@link com.neura.standalonesdk.service.NeuraApiClient#registerPushServerApiKey(Activity, String)}
      * after {@link com.neura.standalonesdk.service.NeuraApiClient#authenticate(com.neura.sdk.object.AuthenticationRequest, AuthenticateCallback)}  is completed.
-     * In this application, this is done on {@link FragmentMain#authenticateWithNeura()}.
+     * In this application, this is done on {@link FragmentMain#authenticateByPhone()}.
      * make manifest adjustments and register a receiver : {@link NeuraEventsService}
      * An important note :
      * ------------------------
