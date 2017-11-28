@@ -126,7 +126,6 @@
         <com.neura.dashboard.view.widget.RobotoButton
             android:id="@+id/add_device"
             style="@style/neura_sdk_auth_button"
-            android:layout_width="0dp"
             android:layout_marginRight="5dp"
             android:layout_weight="1"
             android:background="@color/neura_sdk_blue_btn"
@@ -134,16 +133,6 @@
             android:text="@string/neura_sdk_device_operations"
             android:textColor="@android:color/white" />
 
-        <com.neura.dashboard.view.widget.RobotoButton
-            android:id="@+id/add_place_btn"
-            style="@style/neura_sdk_auth_button"
-            android:layout_width="0dp"
-            android:layout_marginLeft="5dp"
-            android:layout_weight="1"
-            android:background="@color/neura_sdk_blue_btn"
-            android:elevation="1dp"
-            android:text="@string/add_location"
-            android:textColor="@android:color/white" />
     </LinearLayout>
 
     <LinearLayout
