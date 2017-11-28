@@ -91,7 +91,7 @@ public class FragmentMain extends BaseFragment {
         mSimulateAnEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: Insert code to create a picker and simulate events
+                getMainActivity().openFragment(new FragmentEventSimulation());
             }
         });
 
