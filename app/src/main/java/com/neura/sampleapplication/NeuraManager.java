@@ -50,10 +50,9 @@ public class NeuraManager {
      * - (On Marshmallow os and above) A permission isn't granted by your user, and is required by
      * Neura to work. Fyi this applies only for permissions that are critical - location.
      * - Sensors are disabled by the user(location/wifi/bluetooth/network).
-     * <b>Fyi</b> This only means that the sensors are disabled, not when there's no wifi available fe.
-     * <br>We'll alert for the disabled sensors whenever Neura sdk might need it.
-     * the settings). Fyi this only means that the sensors are disabled, not when there's no wifi available fe.
+     * We'll alert for the disabled sensors whenever Neura sdk might need it.
      */
+
     public void initNeuraConnection(Context context) {
         Builder builder = new Builder(context);
         mNeuraApiClient = builder.build();

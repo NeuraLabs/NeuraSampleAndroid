@@ -12,7 +12,6 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.neura.standalonesdk.events.NeuraEvent;
 import com.neura.standalonesdk.events.NeuraEventCallBack;
 import com.neura.standalonesdk.events.NeuraPushCommandFactory;
-import com.neura.standalonesdk.service.NeuraApiClient;
 
 import java.util.Map;
 
@@ -51,5 +50,4 @@ public class NeuraEventsService extends FirebaseMessagingService {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify((int) System.currentTimeMillis(), notification);
     }
-
 }
