@@ -3,8 +3,10 @@ package com.neura.sampleapplication.fragments;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,12 +32,10 @@ import com.neura.sampleapplication.NeuraEventsService;
 import com.neura.sampleapplication.NeuraManager;
 import com.neura.sampleapplication.R;
 import com.neura.sdk.object.AuthenticationRequest;
-import com.neura.sdk.service.SimulateEventCallBack;
 import com.neura.sdk.service.SubscriptionRequestCallbacks;
 import com.neura.sdk.util.NeuraUtil;
 import com.neura.standalonesdk.util.SDKUtils;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class FragmentMain extends BaseFragment {
@@ -50,6 +50,8 @@ public class FragmentMain extends BaseFragment {
     private ImageView mSymbolBottom;
     private TextView mNeuraStatus;
 
+    private String userId;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_main, null);
@@ -58,6 +60,8 @@ public class FragmentMain extends BaseFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        requestLocationPermission();
 
         mSymbolTop = (ImageView) view.findViewById(R.id.neura_symbol_top);
         mSymbolBottom = (ImageView) view.findViewById(R.id.neura_symbol_bottom);
@@ -125,39 +129,42 @@ public class FragmentMain extends BaseFragment {
             public void onSuccess(AuthenticateData authenticateData) {
                 Log.i(getClass().getSimpleName(), "Successfully authenticate with neura. NeuraUserId = "
                         + authenticateData.getNeuraUserId() + ". AccessToken = " + authenticateData.getAccessToken());
-                setUIState(true, true);
+                userId = authenticateData.getNeuraUserId();
 
-                /**
-                 * Go to our push notification guide for more info on how to register receiving
-                 * events via firebase https://dev.theneura.com/docs/guide/android/pushnotification.
-                 * If you're receiving a 'Token already exists error',make sure you've initiated a
-                 * Firebase instance like {@link com.neura.sampleapplication.activities.MainActivity#onCreate(Bundle)}
-                 * http://stackoverflow.com/a/38945375/5130239
-                 */
-                NeuraManager.getInstance().getClient().
-                        registerFirebaseToken(FirebaseInstanceId.getInstance().getToken());
+                boolean isConnected = true;
+                boolean setSymbol = true;
+                setUIState(isConnected, setSymbol);
 
-                //TODO put here a list of events that you wish to receive. Beware, that these events must be listed to your application on our dev site. https://dev.theneura.com/console/apps
-                List<String> events = Arrays.asList("userLeftHome", "userArrivedHome",
-                        "userStartedWalking", "userStartedRunning",
-                        "userArrivedToWork", "userLeftWork",
-                        "userFinishedRunning", "userFinishedWalking",
-                        "userFinishedDriving", "userStartedDriving");
-
-                //Subscribing to events - mandatory in order to receive events.
-                for (int i = 0; i < events.size(); i++) {
-                    subscribeToEvent(events.get(i));
-                }
+                subscribeToPushEvents();
             }
 
             @Override
             public void onFailure(int errorCode) {
                 Log.e(getClass().getSimpleName(), "Failed to authenticate with neura. Reason : "
                         + SDKUtils.errorCodeToString(errorCode));
-                loadProgress(false);
-                mRequestPermissions.setEnabled(true);
+                boolean enabled = true;
+                loadProgress(!enabled);
+                mRequestPermissions.setEnabled(enabled);
             }
         });
+    }
+
+    private void subscribeToPushEvents() {
+        /**
+         * Go to our push notification guide for more info on how to register receiving
+         * events via firebase https://dev.theneura.com/docs/guide/android/pushnotification.
+         * If you're receiving a 'Token already exists error',make sure you've initiated a
+         * Firebase instance like {@link com.neura.sampleapplication.activities.MainActivity#onCreate(Bundle)}
+         * http://stackoverflow.com/a/38945375/5130239
+         */
+        NeuraManager.getInstance().getClient().
+                registerFirebaseToken(FirebaseInstanceId.getInstance().getToken());
+
+        List<String> events = NeuraManager.getEvents();
+        //Subscribing to events - mandatory in order to receive events.
+        for (int i = 0; i < events.size(); i++) {
+            subscribeToEvent(events.get(i));
+        }
     }
 
     //create a call back to handle authentication stages.
@@ -170,20 +177,42 @@ public class FragmentMain extends BaseFragment {
                 case AuthenticatedAnonymously:
                     // successful authentication
                     NeuraManager.getInstance().getClient().unregisterAuthStateListener();
+                    // do something with the user's details...
                     getUserDetails();
-                    setUIState(true, true);
+
+                    boolean isConnected = true;
+                    boolean setSymbol = true;
+                    setUIState(isConnected, setSymbol);
+
+                    subscribeToPushEvents();
                     break;
                 case NotAuthenticated:
                 case FailedReceivingAccessToken:
                     // Authentication failed indefinitely. a good opportunity to retry the authentication flow
                     NeuraManager.getInstance().getClient().unregisterAuthStateListener();
-                    loadProgress(false);
-                    mRequestPermissions.setEnabled(true);
+                    boolean enabled = true;
+                    loadProgress(!enabled);
+                    mRequestPermissions.setEnabled(enabled);
                     break;
                 default:
             }
         }
     };
+
+    private void requestLocationPermission(){
+        if (ActivityCompat.checkSelfPermission(getActivity(),
+            android.Manifest.permission.ACCESS_FINE_LOCATION) !=
+            PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(),
+            android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(),
+                new String[]{ android.Manifest.permission.ACCESS_FINE_LOCATION}, 1111);
+            return;
+        }
+        else{
+            // Make sure the user enables location, this is needed to for anonymous authentication.
+            // Phone based auth asks for it automatically.
+        }
+    }
 
     private void getUserDetails() {
         NeuraManager.getInstance().getClient().getUserDetails(new UserDetailsCallbacks() {
@@ -191,7 +220,7 @@ public class FragmentMain extends BaseFragment {
             public void onSuccess(UserDetails userDetails) {
                 if (userDetails.getData() != null) {
                     // Do something with this information
-                    userDetails.getData().getNeuraId();
+                    userId = userDetails.getData().getNeuraId();
                     NeuraManager.getInstance().getClient().getUserAccessToken();
                 }
             }
@@ -215,24 +244,23 @@ public class FragmentMain extends BaseFragment {
         mRequestPermissions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!getMainActivity().requestSmsPermission()) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setMessage(R.string.alert_authenticate_dialog)
-                            .setPositiveButton(R.string.auth_phone, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    authenticateByPhone();
-                                }
-                            })
-                            .setNeutralButton(R.string.auth_anon, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    NeuraManager.authenticateAnonymously(silentStateListener);
-                                }
-                            });
-                    AlertDialog popup = builder.create();
-                    popup.show();
-                }
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage(R.string.alert_authenticate_dialog);
+                builder.setPositiveButton(R.string.auth_phone, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        getMainActivity().requestSmsPermission();
+                    }
+                });
+                builder.setNeutralButton(R.string.auth_anon, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        NeuraManager.authenticateAnonymously(silentStateListener);
+                    }
+                });
+
+                AlertDialog popup = builder.create();
+                popup.show();
             }
         });
 
@@ -327,7 +355,7 @@ public class FragmentMain extends BaseFragment {
      * @param eventName event to notify
      */
     public void subscribeToEvent(String eventName) {
-        String eventIdentifier = "YourEventIdentifier_" + eventName;
+        String eventIdentifier = userId + eventName;
         NeuraManager.getInstance().getClient().subscribeToEvent(eventName, eventIdentifier, mSubscribeRequest);
     }
 

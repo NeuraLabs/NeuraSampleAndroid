@@ -12,6 +12,8 @@
     <string name="neura_status_connected">Connected</string>
     <string name="services">Services</string>
     <string name="add_location">Add a location</string>
+    <string name="auth_phone">By Phone</string>
+    <string name="auth_anon">Anonymously</string>
 
     <!-- fragment add device -->
     <string name="get_devices">Get All Available Devices</string>
@@ -21,6 +23,5 @@
     <string name="add_device_capabilities">Add a device by capability</string>
     <string name="add_device_name">Add a device by name</string>
     <string name="alert_authenticate_dialog">How do you want to authenticate this device?</string>
-    <string name="auth_phone">By Phone</string>
-    <string name="auth_anon">Anonymously</string>
+
 </resources>

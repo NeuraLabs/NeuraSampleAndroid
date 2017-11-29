@@ -1,7 +1,10 @@
 package com.neura.sampleapplication;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Build;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -13,6 +16,9 @@ import com.neura.standalonesdk.service.NeuraApiClient;
 import com.neura.standalonesdk.util.Builder;
 import com.neura.standalonesdk.util.SDKUtils;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Singleton class for interacting with NeuraApiClient
  */
@@ -20,6 +26,13 @@ public class NeuraManager {
     public static final String TAG = NeuraManager.class.getSimpleName();
 
     private static NeuraManager sInstance;
+
+    //TODO put here a list of events that you wish to receive. Beware, that these events must be listed to your application on our dev site. https://dev.theneura.com/console/apps
+    private static List<String> events = Arrays.asList("userLeftHome", "userArrivedHome",
+            "userStartedWalking", "userStartedRunning",
+            "userArrivedToWork", "userLeftWork",
+            "userFinishedRunning", "userFinishedWalking",
+            "userFinishedDriving", "userStartedDriving");
 
     private NeuraApiClient mNeuraApiClient;
 
@@ -69,6 +82,7 @@ public class NeuraManager {
         if (NeuraManager.getInstance().getClient().isLoggedIn()) {
             return;
         }
+
         //Get the FireBase Instance ID, we will use it to instantiate AnonymousAuthenticationRequest
         String pushToken = FirebaseInstanceId.getInstance().getToken();
         //Instantiate AnonymousAuthenticationRequest instance.
@@ -93,4 +107,9 @@ public class NeuraManager {
     private static boolean isMinVersion() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
     }
+
+    public static List<String> getEvents() {
+        return events;
+    }
+
 }
