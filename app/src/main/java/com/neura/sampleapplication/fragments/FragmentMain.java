@@ -180,16 +180,20 @@ public class FragmentMain extends BaseFragment {
                     // do something with the user's details...
                     getUserDetails();
 
+                    // Trigger UI changes
                     boolean isConnected = true;
                     boolean setSymbol = true;
                     setUIState(isConnected, setSymbol);
 
+                    // Subscribe to neura moments so that you can receive push notifications
                     subscribeToPushEvents();
                     break;
                 case NotAuthenticated:
                 case FailedReceivingAccessToken:
                     // Authentication failed indefinitely. a good opportunity to retry the authentication flow
                     NeuraManager.getInstance().getClient().unregisterAuthStateListener();
+
+                    // Trigger UI changes
                     boolean enabled = true;
                     loadProgress(!enabled);
                     mRequestPermissions.setEnabled(enabled);
@@ -209,7 +213,8 @@ public class FragmentMain extends BaseFragment {
             return;
         }
         else{
-            // Make sure the user enables location, this is needed to for anonymous authentication.
+            // Make sure the user enables location,
+            // this is needed to for Neura to work, and is not automatic when using anonymous authentication.
             // Phone based auth asks for it automatically.
         }
     }
@@ -249,7 +254,7 @@ public class FragmentMain extends BaseFragment {
                 builder.setPositiveButton(R.string.auth_phone, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        getMainActivity().requestSmsPermission();
+                        authenticateByPhone();
                     }
                 });
                 builder.setNeutralButton(R.string.auth_anon, new DialogInterface.OnClickListener() {

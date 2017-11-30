@@ -59,36 +59,4 @@ public class MainActivity extends Activity {
             getFragmentManager().popBackStackImmediate();
         }
     }
-
-    /**
-     * @return false if sms permission is granted, true if we're requested sms permission to the user.
-     */
-    public boolean requestSmsPermission() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
-            return false;
-        if ((ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED)) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.RECEIVE_SMS}, 190);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
-                                           @NonNull int[] grantResults) {
-        // TODO: this doesn't work. Fix!
-        // 1111 means that we just received location permissions. In this case, don't auth by phone yet.
-        if(requestCode != 1111) {
-            //Since we're calling permissions request on sms, which is only called from FragmentMain,
-            //so we can assume that the current fragment is FragmentMain.
-            //It doesn't matter if the user approves or rejects the sms request, we'll show authentication
-            //screen regardless.
-            ((FragmentMain) getFragmentManager().findFragmentById
-                    (R.id.fragment_container)).authenticateByPhone();
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
 }
