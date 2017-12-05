@@ -1,6 +1,6 @@
 # NeuraSampleAndroid
 
-<img src="https://s11.postimg.org/gtxw1agb7/neura_login.png" alt="neura_login" width="210" height="350"> <img src="https://s14.postimg.org/fmnzmnxox/situation.png" alt="situation" width="210" height="350"> <img src="https://s21.postimg.org/9yeirqdc7/missing_gym.png" alt="missing_gym" width="210" height="350">
+<img src="https://user-images.githubusercontent.com/6314867/33594144-f54707c2-d94f-11e7-8ea2-c2b6d2ed6bcc.png" alt="neura_login" width="210" height="350"> <img src="https://user-images.githubusercontent.com/6314867/33594150-f6daca42-d94f-11e7-8f82-a9d2323329e3.png" alt="situation" width="210" height="350"> <img src="https://user-images.githubusercontent.com/6314867/33594151-f84c1f20-d94f-11e7-9b82-c40f39b6632b.png" alt="missing_gym" width="210" height="350">
 
 ## Introduction
 This is a sample code for integrating <a href="http://www.theneura.com/">Neura</a> with a native Android application.<br/>
