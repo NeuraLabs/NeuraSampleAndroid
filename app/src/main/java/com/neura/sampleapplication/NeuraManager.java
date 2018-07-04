@@ -1,10 +1,7 @@
 package com.neura.sampleapplication;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Build;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -13,7 +10,6 @@ import com.neura.resources.authentication.AnonymousAuthenticateData;
 import com.neura.resources.authentication.AnonymousAuthenticationStateListener;
 import com.neura.sdk.object.AnonymousAuthenticationRequest;
 import com.neura.standalonesdk.service.NeuraApiClient;
-import com.neura.standalonesdk.util.Builder;
 import com.neura.standalonesdk.util.SDKUtils;
 
 import java.util.Arrays;
