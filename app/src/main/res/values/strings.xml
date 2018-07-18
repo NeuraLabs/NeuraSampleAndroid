@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">Neura Sample</string>
+    
+    <!-- fragment main strings -->
+    <string name="connect_request_permissions">Connect and request permissions</string>
+    <string name="disconnect_from_neura">Disconnect</string>
+    <string name="neura_status">Neura status:</string>
+    <string name="neura_status_disconnected">Disconnected</string>
+    <string name="neura_status_connected">Connected</string>
+    <string name="services">Services</string>
+    <string name="add_location">Add a location</string>
+    <string name="auth_phone">By Phone</string>
+    <string name="auth_anon">Anonymously</string>
+
+    <!-- fragment add device -->
+    <string name="get_devices">Get All Available Devices</string>
+    <string name="has_devices_with_capabilities">Has Devices With Capability</string>
+    <string name="get_capabilities">Get Capabilities</string>
+    <string name="add_device_general">Add a device</string>
+    <string name="add_device_capabilities">Add a device by capability</string>
+    <string name="add_device_name">Add a device by name</string>
+    <string name="alert_authenticate_dialog">How do you want to authenticate this device?</string>
+
+</resources>
