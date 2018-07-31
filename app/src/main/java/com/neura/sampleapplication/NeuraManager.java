@@ -53,7 +53,7 @@ public class NeuraManager {
      */
 
     public void initNeuraConnection(Context context) {
-        mNeuraApiClient = NeuraApiClient.getClient(context, "[APP_UID]", "[APP_SECRET]");
+        mNeuraApiClient = NeuraApiClient.getClient(context, "[APP_ID]", "[APP_SECRET]");
     }
 
     public static void authenticateAnonymously(final AnonymousAuthenticationStateListener silentStateListener) {
