@@ -1,41 +1,31 @@
 package com.neura.sampleapplication.fragments;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.neura.resources.authentication.AnonymousAuthenticationStateListener;
-import com.neura.resources.authentication.AuthenticateCallback;
-import com.neura.resources.authentication.AuthenticateData;
 import com.neura.resources.authentication.AuthenticationState;
 import com.neura.resources.user.UserDetails;
 import com.neura.resources.user.UserDetailsCallbacks;
 import com.neura.sampleapplication.NeuraManager;
 import com.neura.sampleapplication.R;
-import com.neura.sdk.object.AuthenticationRequest;
-import com.neura.standalonesdk.util.SDKUtils;
 
 public class FragmentMain extends BaseFragment {
 
     public Button mRequestPermissions;
     private Button mDisconnect;
     private Button mAddDevice;
-    private Button mServices;
 
     private ImageView mSymbolTop;
     private ImageView mSymbolBottom;
@@ -61,7 +51,6 @@ public class FragmentMain extends BaseFragment {
         mRequestPermissions = (Button) view.findViewById(R.id.request_permissions_btn);
         mDisconnect = (Button) view.findViewById(R.id.disconnect);
         mAddDevice = (Button) view.findViewById(R.id.add_device);
-        mServices = (Button) view.findViewById(R.id.services_button);
         mNeuraStatus = (TextView) view.findViewById(R.id.neura_status);
 
         mSymbolTop.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -80,7 +69,8 @@ public class FragmentMain extends BaseFragment {
             }
         });
 
-        setUIState(NeuraManager.getInstance().getClient().isLoggedIn(), false);
+        setUIState(NeuraManager.getInstance().getClient().isLoggedIn());
+        loadProgress(false);
 
         mAddDevice.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,13 +81,6 @@ public class FragmentMain extends BaseFragment {
 
         ((TextView) view.findViewById(R.id.version)).
                 setText("Sdk Version : " + NeuraManager.getInstance().getClient().getSdkVersion());
-
-        mServices.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getMainActivity().openFragment(new FragmentServices());
-            }
-        });
     }
 
     //create a call back to handle authentication stages.
@@ -106,17 +89,15 @@ public class FragmentMain extends BaseFragment {
         public void onStateChanged(AuthenticationState state) {
             switch (state) {
                 case AccessTokenRequested:
+                    loadProgress(true);
                     break;
                 case AuthenticatedAnonymously:
                     // successful authentication
                     NeuraManager.getInstance().getClient().unregisterAuthStateListener();
                     // do something with the user's details...
                     getUserDetails();
-
                     // Trigger UI changes
-                    boolean isConnected = true;
-                    boolean setSymbol = true;
-                    setUIState(isConnected, setSymbol);
+                    setUIState(true);
 
                     break;
                 case NotAuthenticated:
@@ -125,9 +106,7 @@ public class FragmentMain extends BaseFragment {
                     NeuraManager.getInstance().getClient().unregisterAuthStateListener();
 
                     // Trigger UI changes
-                    boolean enabled = true;
-                    loadProgress(!enabled);
-                    mRequestPermissions.setEnabled(enabled);
+                    setUIState(false);
                     break;
                 default:
             }
@@ -167,9 +146,8 @@ public class FragmentMain extends BaseFragment {
         });
     }
 
-    public void setUIState(final boolean isConnected, boolean setSymbol) {
-        if (setSymbol)
-            setSymbols(isConnected);
+    public void setUIState(final boolean isConnected) {
+        setSymbols(isConnected);
         loadProgress(!isConnected);
         mNeuraStatus.setText(getString(isConnected ? R.string.neura_status_connected : R.string.neura_status_disconnected));
         mNeuraStatus.setTextColor(getResources().getColor(isConnected ? R.color.green_connected : R.color.red_disconnected));
@@ -183,11 +161,6 @@ public class FragmentMain extends BaseFragment {
             }
         });
 
-        mRequestPermissions.setVisibility(isConnected ? View.GONE : View.VISIBLE);
-        mServices.setVisibility(isConnected ? View.VISIBLE : View.GONE);
-        mDisconnect.setEnabled(isConnected);
-        loadProgress(false);
-
         mDisconnect.setOnClickListener(isConnected ? new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -197,14 +170,16 @@ public class FragmentMain extends BaseFragment {
     }
 
     private void disconnect() {
-        loadProgress(true);
+        setUIState(false);
         System.out.println(NeuraManager.getInstance().getClient().isLoggedIn());
         NeuraManager.getInstance().getClient().forgetMe(getActivity(), true, new android.os.Handler.Callback() {
             @Override
             public boolean handleMessage(Message msg) {
+                if (msg.arg1 == 1) {
+                    setUIState(NeuraManager.getInstance().getClient().isLoggedIn());
+
+                }
                 loadProgress(false);
-                if (msg.arg1 == 1)
-                    setUIState(NeuraManager.getInstance().getClient().isLoggedIn(), true);
                 return true;
             }
         });
@@ -213,8 +188,10 @@ public class FragmentMain extends BaseFragment {
     private void setEnableOnButtons(boolean isConnected) {
         mAddDevice.setEnabled(isConnected);
         mAddDevice.setAlpha(isConnected ? 1 : 0.5f);
-        mServices.setEnabled(isConnected);
-        mServices.setAlpha(isConnected ? 1 : 0.5f);
+        mDisconnect.setEnabled(isConnected);
+        mDisconnect.setAlpha(isConnected ? 1 : 0.5f);
+        mRequestPermissions.setEnabled(!isConnected);
+        mRequestPermissions.setAlpha(isConnected ? 0.5f : 1);
     }
 
     private void setTopSymbol(boolean isConnected) {
@@ -239,6 +216,5 @@ public class FragmentMain extends BaseFragment {
         super.loadProgress(enabled);
         mRequestPermissions.setEnabled(!enabled);
         mDisconnect.setEnabled(!enabled);
-        mServices.setEnabled(!enabled);
     }
 }
