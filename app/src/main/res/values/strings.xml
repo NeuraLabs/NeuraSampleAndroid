@@ -12,13 +12,4 @@
     <string name="auth_phone">By Phone</string>
     <string name="auth_anon">Anonymously</string>
 
-    <!-- fragment add device -->
-    <string name="get_devices">Get All Available Devices</string>
-    <string name="has_devices_with_capabilities">Has Devices With Capability</string>
-    <string name="get_capabilities">Get Capabilities</string>
-    <string name="add_device_general">Add a device</string>
-    <string name="add_device_capabilities">Add a device by capability</string>
-    <string name="add_device_name">Add a device by name</string>
-    <string name="alert_authenticate_dialog">How do you want to authenticate this device?</string>
-
 </resources>

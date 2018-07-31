@@ -95,16 +95,6 @@
         android:orientation="horizontal"
         android:weightSum="2">
 
-        <com.neura.dashboard.view.widget.RobotoButton
-            android:id="@+id/add_device"
-            style="@style/neura_sdk_auth_button"
-            android:layout_width="match_parent"
-            android:layout_weight="1"
-            android:background="@color/neura_sdk_blue_btn"
-            android:elevation="1dp"
-            android:text="@string/neura_sdk_device_operations"
-            android:textColor="@android:color/white" />
-
     </LinearLayout>
 
     <LinearLayout

@@ -25,7 +25,6 @@ public class FragmentMain extends BaseFragment {
 
     public Button mRequestPermissions;
     private Button mDisconnect;
-    private Button mAddDevice;
 
     private ImageView mSymbolTop;
     private ImageView mSymbolBottom;
@@ -50,7 +49,6 @@ public class FragmentMain extends BaseFragment {
         mProgress = (ProgressBar) view.findViewById(R.id.progress);
         mRequestPermissions = (Button) view.findViewById(R.id.request_permissions_btn);
         mDisconnect = (Button) view.findViewById(R.id.disconnect);
-        mAddDevice = (Button) view.findViewById(R.id.add_device);
         mNeuraStatus = (TextView) view.findViewById(R.id.neura_status);
 
         mSymbolTop.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -71,13 +69,6 @@ public class FragmentMain extends BaseFragment {
 
         setUIState(NeuraManager.getInstance().getClient().isLoggedIn());
         loadProgress(false);
-
-        mAddDevice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getMainActivity().openFragment(new FragmentDeviceOperations());
-            }
-        });
 
         ((TextView) view.findViewById(R.id.version)).
                 setText("Sdk Version : " + NeuraManager.getInstance().getClient().getSdkVersion());
@@ -148,7 +139,6 @@ public class FragmentMain extends BaseFragment {
 
     public void setUIState(final boolean isConnected) {
         setSymbols(isConnected);
-        loadProgress(!isConnected);
         mNeuraStatus.setText(getString(isConnected ? R.string.neura_status_connected : R.string.neura_status_disconnected));
         mNeuraStatus.setTextColor(getResources().getColor(isConnected ? R.color.green_connected : R.color.red_disconnected));
         setEnableOnButtons(isConnected);
@@ -157,6 +147,7 @@ public class FragmentMain extends BaseFragment {
         mRequestPermissions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                loadProgress(true);
                 NeuraManager.authenticateAnonymously(silentStateListener);
             }
         });
@@ -164,6 +155,7 @@ public class FragmentMain extends BaseFragment {
         mDisconnect.setOnClickListener(isConnected ? new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                loadProgress(true);
                 disconnect();
             }
         } : null);
@@ -186,8 +178,6 @@ public class FragmentMain extends BaseFragment {
     }
 
     private void setEnableOnButtons(boolean isConnected) {
-        mAddDevice.setEnabled(isConnected);
-        mAddDevice.setAlpha(isConnected ? 1 : 0.5f);
         mDisconnect.setEnabled(isConnected);
         mDisconnect.setAlpha(isConnected ? 1 : 0.5f);
         mRequestPermissions.setEnabled(!isConnected);
