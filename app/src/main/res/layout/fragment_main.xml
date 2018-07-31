@@ -28,7 +28,6 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/phone_injection_layout"
         android:layout_below="@+id/version"
         android:gravity="center">
 
@@ -79,23 +78,6 @@
         android:focusable="true"
         android:focusableInTouchMode="true" />
 
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/phone_injection_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/request_permissions_btn"
-        android:layout_below="@+id/authentication_title"
-        android:hint="Optional : authenticate with a phone + country code">
-
-        <com.neura.dashboard.view.widget.RobotoRegularBaseEditText
-            android:id="@+id/phone_number"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="phone"
-            android:singleLine="true"
-            android:textColor="@android:color/black" />
-    </android.support.design.widget.TextInputLayout>
-
     <com.neura.dashboard.view.widget.RobotoButton
         android:id="@+id/request_permissions_btn"
         style="@style/neura_sdk_auth_button"
@@ -126,7 +108,7 @@
         <com.neura.dashboard.view.widget.RobotoButton
             android:id="@+id/add_device"
             style="@style/neura_sdk_auth_button"
-            android:layout_marginRight="5dp"
+            android:layout_width="match_parent"
             android:layout_weight="1"
             android:background="@color/neura_sdk_blue_btn"
             android:elevation="1dp"
@@ -145,21 +127,9 @@
         android:weightSum="2">
 
         <com.neura.dashboard.view.widget.RobotoButton
-            android:id="@+id/event_simulation"
-            style="@style/neura_sdk_auth_button"
-            android:layout_width="0dp"
-            android:layout_marginRight="5dp"
-            android:layout_weight="1"
-            android:background="@color/neura_sdk_blue_btn"
-            android:elevation="1dp"
-            android:text="@string/neura_sdk_simulate_an_event"
-            android:textColor="@android:color/white" />
-
-        <com.neura.dashboard.view.widget.RobotoButton
             android:id="@+id/disconnect"
             style="@style/neura_sdk_auth_button"
-            android:layout_width="0dp"
-            android:layout_marginLeft="5dp"
+            android:layout_width="match_parent"
             android:layout_weight="1"
             android:background="@android:color/white"
             android:elevation="1dp"

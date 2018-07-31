@@ -12,9 +12,6 @@ import com.neura.sdk.object.AnonymousAuthenticationRequest;
 import com.neura.standalonesdk.service.NeuraApiClient;
 import com.neura.standalonesdk.util.SDKUtils;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * Singleton class for interacting with NeuraApiClient
  */
@@ -22,13 +19,6 @@ public class NeuraManager {
     public static final String TAG = NeuraManager.class.getSimpleName();
 
     private static NeuraManager sInstance;
-
-    //TODO put here a list of events that you wish to receive. Beware, that these events must be listed to your application on our dev site. https://dev.theneura.com/console/apps
-    private static List<String> events = Arrays.asList("userLeftHome", "userArrivedHome",
-            "userStartedWalking", "userStartedRunning",
-            "userArrivedToWork", "userLeftWork",
-            "userFinishedRunning", "userFinishedWalking",
-            "userFinishedDriving", "userStartedDriving");
 
     private NeuraApiClient mNeuraApiClient;
 
@@ -63,7 +53,7 @@ public class NeuraManager {
      */
 
     public void initNeuraConnection(Context context) {
-        mNeuraApiClient = NeuraApiClient.getClient(context, context.getResources().getString(R.string.app_uid), context.getResources().getString(R.string.app_secret));
+        mNeuraApiClient = NeuraApiClient.getClient(context, "[APP_UID]", "[APP_SECRET]");
     }
 
     public static void authenticateAnonymously(final AnonymousAuthenticationStateListener silentStateListener) {
@@ -99,9 +89,4 @@ public class NeuraManager {
     private static boolean isMinVersion() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
     }
-
-    public static List<String> getEvents() {
-        return events;
-    }
-
 }

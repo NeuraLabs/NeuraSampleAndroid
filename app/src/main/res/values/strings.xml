@@ -1,11 +1,8 @@
 <resources>
     <string name="app_name">Neura Sample</string>
 
-    <string name="app_uid">dae8c58c0d6860bb828b25c01f99889bb719513063558e4b5882a4c8c5cb8015</string>
-    <string name="app_secret">00f7e687db22aa21c965a1754dcf1f24746129a054dac5f06dfa4e356eb303e3</string>
-
     <!-- fragment main strings -->
-    <string name="connect_request_permissions">Connect and request permissions</string>
+    <string name="connect_request_permissions">Connect</string>
     <string name="disconnect_from_neura">Disconnect</string>
     <string name="neura_status">Neura status:</string>
     <string name="neura_status_disconnected">Disconnected</string>
