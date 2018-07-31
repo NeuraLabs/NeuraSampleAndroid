@@ -29,8 +29,10 @@ public class FragmentMain extends BaseFragment {
     private ImageView mSymbolTop;
     private ImageView mSymbolBottom;
     private TextView mNeuraStatus;
+    private TextView mNeuraUserId;
 
     private String userId;
+    private String userAccessToken;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -50,6 +52,7 @@ public class FragmentMain extends BaseFragment {
         mRequestPermissions = (Button) view.findViewById(R.id.request_permissions_btn);
         mDisconnect = (Button) view.findViewById(R.id.disconnect);
         mNeuraStatus = (TextView) view.findViewById(R.id.neura_status);
+        mNeuraUserId = (TextView) view.findViewById(R.id.neura_user_id);
 
         mSymbolTop.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -89,7 +92,7 @@ public class FragmentMain extends BaseFragment {
                     getUserDetails();
                     // Trigger UI changes
                     setUIState(true);
-
+                    loadProgress(false);
                     break;
                 case NotAuthenticated:
                 case FailedReceivingAccessToken:
@@ -98,6 +101,7 @@ public class FragmentMain extends BaseFragment {
 
                     // Trigger UI changes
                     setUIState(false);
+                    loadProgress(false);
                     break;
                 default:
             }
@@ -127,12 +131,17 @@ public class FragmentMain extends BaseFragment {
                 if (userDetails.getData() != null) {
                     // Do something with this information
                     userId = userDetails.getData().getNeuraId();
-                    NeuraManager.getInstance().getClient().getUserAccessToken();
+                    userAccessToken = NeuraManager.getInstance().getClient().getUserAccessToken();
+                    mNeuraUserId.setText("Neura User ID:" + userId);
+                }
+                else {
+                    mNeuraUserId.setText("");
                 }
             }
 
             @Override
             public void onFailure(Bundle resultData, int errorCode) {
+                mNeuraUserId.setText("");
             }
         });
     }
@@ -141,7 +150,13 @@ public class FragmentMain extends BaseFragment {
         setSymbols(isConnected);
         mNeuraStatus.setText(getString(isConnected ? R.string.neura_status_connected : R.string.neura_status_disconnected));
         mNeuraStatus.setTextColor(getResources().getColor(isConnected ? R.color.green_connected : R.color.red_disconnected));
+
         setEnableOnButtons(isConnected);
+        if (isConnected)
+            getUserDetails();
+        else
+            mNeuraUserId.setText("");
+
         mRequestPermissions.setText(R.string.connect_request_permissions);
 
         mRequestPermissions.setOnClickListener(new View.OnClickListener() {
