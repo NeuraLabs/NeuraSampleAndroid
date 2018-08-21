@@ -15,3 +15,15 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+-optimizationpasses 5
+-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
+-keeppackagenames !**
+-dontskipnonpubliclibraryclasses
+-dontpreverify
+-dontwarn org.**
+-dontwarn com.google.**
+-dontwarn android.net.http.**
+-dontwarn com.android.**
+-dontwarn android.support.**
+-dontwarn com.crashlytics.
