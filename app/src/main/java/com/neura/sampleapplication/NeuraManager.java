@@ -2,9 +2,13 @@ package com.neura.sampleapplication;
 
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.util.Log;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.neura.resources.authentication.AnonymousAuthenticateCallBack;
 import com.neura.resources.authentication.AnonymousAuthenticateData;
 import com.neura.resources.authentication.AnonymousAuthenticationStateListener;
@@ -66,7 +70,18 @@ public class NeuraManager {
         }
 
         //Get the FireBase Instance ID, we will use it to instantiate AnonymousAuthenticationRequest
-        String pushToken = FirebaseInstanceId.getInstance().getToken();
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>(){
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "getInstanceId failed", task.getException());
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                        String pushToken = task.getResult().getToken();
+
         //Instantiate AnonymousAuthenticationRequest instance.
         AnonymousAuthenticationRequest request = new AnonymousAuthenticationRequest(pushToken);
 
@@ -84,6 +99,9 @@ public class NeuraManager {
                 Log.e(TAG, "Failed to authenticate with neura. " + "Reason : " + SDKUtils.errorCodeToString(errorCode));
             }
         });
+    }
+                });
+
     }
 
     private static boolean isMinVersion() {

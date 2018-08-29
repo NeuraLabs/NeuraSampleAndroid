@@ -174,6 +174,7 @@ public class FragmentMain extends BaseFragment {
                 disconnect();
             }
         } : null);
+        NeuraManager.getInstance().getClient().startNeuraForeground(isConnected);
     }
 
     private void disconnect() {

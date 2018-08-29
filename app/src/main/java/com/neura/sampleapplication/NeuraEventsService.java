@@ -30,15 +30,26 @@ public class NeuraEventsService extends FirebaseMessagingService {
         });
     }
 
-    private void generateNotification(Context context, String eventText) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+    @Override
+    public void onNewToken(String token) {
+        Log.i(getClass().getSimpleName(), "Refreshed token: " + token);
+        //Update Neura with your new firebase token
+        NeuraManager.getInstance().getClient().registerFirebaseToken(token);
+        // If you want to send messages to this application instance or
+        // manage this apps subscriptions on the server side, send the
+        // Instance ID token to your app server.
+    }
 
+    private void generateNotification(Context context, String eventText) {
         String appName = "Neura";
         int stringId = context.getApplicationInfo().labelRes;
         if (stringId > 0)
             appName = context.getString(stringId);
 
-        builder.setContentTitle(appName + " detected event")
+        String channelId = getString(R.string.default_notification_channel_id);
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(context, channelId)
+                .setContentTitle(appName + " detected event")
                 .setContentText(eventText)
                 .setSmallIcon(R.drawable.neura_sdk_notification_status_icon)
                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), context.getApplicationInfo().icon))
