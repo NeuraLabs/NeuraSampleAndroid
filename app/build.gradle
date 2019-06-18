@@ -29,11 +29,11 @@ dependencies {
         exclude group: "com.google.android.gms"
         exclude group: "com.google.firebase"
     }
-    implementation ("com.google.android.gms:play-services-gcm:15.0.1")
-    implementation ("com.google.android.gms:play-services-location:15.0.1")
-    implementation ("com.google.android.gms:play-services-awareness:15.0.1")
-    implementation ("com.google.firebase:firebase-messaging:17.3.0")
-    implementation ("com.google.firebase:firebase-core:16.0.3")
+    implementation ("com.google.android.gms:play-services-gcm:16.0.0")
+    implementation ("com.google.android.gms:play-services-location:16.0.0")
+    implementation ("com.google.android.gms:play-services-awareness:16.0.0")
+    implementation ("com.google.firebase:firebase-messaging:18.0.0")
+    implementation ("com.google.firebase:firebase-core:16.0.9")
 }
 
 //required when using firebase + define classpath 'com.google.gms:google-services:3.1.0' in the main gradle file.

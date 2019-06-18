@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -45,14 +44,14 @@ public class FragmentMain extends BaseFragment {
 
         requestLocationPermission();
 
-        mSymbolTop = (ImageView) view.findViewById(R.id.neura_symbol_top);
-        mSymbolBottom = (ImageView) view.findViewById(R.id.neura_symbol_bottom);
+        mSymbolTop =  view.findViewById(R.id.neura_symbol_top);
+        mSymbolBottom =  view.findViewById(R.id.neura_symbol_bottom);
 
-        mProgress = (ProgressBar) view.findViewById(R.id.progress);
-        mRequestPermissions = (Button) view.findViewById(R.id.request_permissions_btn);
-        mDisconnect = (Button) view.findViewById(R.id.disconnect);
-        mNeuraStatus = (TextView) view.findViewById(R.id.neura_status);
-        mNeuraUserId = (TextView) view.findViewById(R.id.neura_user_id);
+        mProgress =  view.findViewById(R.id.progress);
+        mRequestPermissions =  view.findViewById(R.id.request_permissions_btn);
+        mDisconnect =  view.findViewById(R.id.disconnect);
+        mNeuraStatus =  view.findViewById(R.id.neura_status);
+        mNeuraUserId =  view.findViewById(R.id.neura_user_id);
 
         mSymbolTop.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
