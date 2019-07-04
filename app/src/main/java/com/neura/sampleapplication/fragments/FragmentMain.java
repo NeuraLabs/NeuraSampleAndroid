@@ -17,7 +17,7 @@ import com.neura.resources.authentication.AnonymousAuthenticationStateListener;
 import com.neura.resources.authentication.AuthenticationState;
 import com.neura.resources.user.UserDetails;
 import com.neura.resources.user.UserDetailsCallbacks;
-import com.neura.sampleapplication.NeuraManager;
+import com.neura.sampleapplication.NeuraHelper;
 import com.neura.sampleapplication.R;
 
 public class FragmentMain extends BaseFragment {
@@ -31,7 +31,6 @@ public class FragmentMain extends BaseFragment {
     private TextView mNeuraUserId;
 
     private String userId;
-    private String userAccessToken;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -52,11 +51,12 @@ public class FragmentMain extends BaseFragment {
         mDisconnect =  view.findViewById(R.id.disconnect);
         mNeuraStatus =  view.findViewById(R.id.neura_status);
         mNeuraUserId =  view.findViewById(R.id.neura_user_id);
+        final NeuraHelper neuraHelper = getNeuraHelper();
 
         mSymbolTop.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                setTopSymbol(NeuraManager.getInstance().getClient().isLoggedIn());
+                setTopSymbol(neuraHelper != null && neuraHelper.getClient().isLoggedIn());
                 mSymbolTop.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
@@ -64,29 +64,33 @@ public class FragmentMain extends BaseFragment {
         mSymbolBottom.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                setBottomSymbol(NeuraManager.getInstance().getClient().isLoggedIn());
+                NeuraHelper neuraHelper = getNeuraHelper();
+                setBottomSymbol(neuraHelper != null && neuraHelper.getClient().isLoggedIn());
                 mSymbolBottom.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
 
-        setUIState(NeuraManager.getInstance().getClient().isLoggedIn());
+        setUIState(neuraHelper.getClient().isLoggedIn());
         loadProgress(false);
 
         ((TextView) view.findViewById(R.id.version)).
-                setText("Sdk Version : " + NeuraManager.getInstance().getClient().getSdkVersion());
+                setText("Sdk Version : " + neuraHelper.getClient().getSdkVersion());
     }
 
     //create a call back to handle authentication stages.
     AnonymousAuthenticationStateListener silentStateListener = new AnonymousAuthenticationStateListener() {
         @Override
         public void onStateChanged(AuthenticationState state) {
+            NeuraHelper neuraHelper = getNeuraHelper();
             switch (state) {
                 case AccessTokenRequested:
                     loadProgress(true);
                     break;
                 case AuthenticatedAnonymously:
                     // successful authentication
-                    NeuraManager.getInstance().getClient().unregisterAuthStateListener();
+                    if(neuraHelper != null){
+                        neuraHelper.getClient().unregisterAuthStateListener();
+                    }
                     // do something with the user's details...
                     getUserDetails();
                     // Trigger UI changes
@@ -96,8 +100,9 @@ public class FragmentMain extends BaseFragment {
                 case NotAuthenticated:
                 case FailedReceivingAccessToken:
                     // Authentication failed indefinitely. a good opportunity to retry the authentication flow
-                    NeuraManager.getInstance().getClient().unregisterAuthStateListener();
-
+                    if(neuraHelper != null){
+                        neuraHelper.getClient().unregisterAuthStateListener();
+                    }
                     // Trigger UI changes
                     setUIState(false);
                     loadProgress(false);
@@ -124,25 +129,28 @@ public class FragmentMain extends BaseFragment {
     }
 
     private void getUserDetails() {
-        NeuraManager.getInstance().getClient().getUserDetails(new UserDetailsCallbacks() {
-            @Override
-            public void onSuccess(UserDetails userDetails) {
-                if (userDetails.getData() != null) {
-                    // Do something with this information
-                    userId = userDetails.getData().getNeuraId();
-                    userAccessToken = NeuraManager.getInstance().getClient().getUserAccessToken();
-                    mNeuraUserId.setText("Neura User ID:" + userId);
+        final NeuraHelper neuraHelper = getNeuraHelper();
+        if(neuraHelper != null){
+            getNeuraHelper().getClient().getUserDetails(new UserDetailsCallbacks() {
+                @Override
+                public void onSuccess(UserDetails userDetails) {
+                    if (userDetails.getData() != null) {
+                        // Do something with this information
+                        userId = userDetails.getData().getNeuraId();
+                        // You can fetch access token by calling neuraHelper.getClient().getUserAccessToken();
+                        mNeuraUserId.setText("Neura User ID:" + userId);
+                    }
+                    else {
+                        mNeuraUserId.setText("");
+                    }
                 }
-                else {
+
+                @Override
+                public void onFailure(Bundle resultData, int errorCode) {
                     mNeuraUserId.setText("");
                 }
-            }
-
-            @Override
-            public void onFailure(Bundle resultData, int errorCode) {
-                mNeuraUserId.setText("");
-            }
-        });
+            });
+        }
     }
 
     public void setUIState(final boolean isConnected) {
@@ -162,7 +170,7 @@ public class FragmentMain extends BaseFragment {
             @Override
             public void onClick(View v) {
                 loadProgress(true);
-                NeuraManager.authenticateAnonymously(silentStateListener);
+                getNeuraHelper().authenticateAnonymously(silentStateListener);
             }
         });
 
@@ -173,23 +181,26 @@ public class FragmentMain extends BaseFragment {
                 disconnect();
             }
         } : null);
-        NeuraManager.getInstance().getClient().startNeuraForeground(isConnected);
+        getNeuraHelper().getClient().startNeuraForeground(isConnected);
     }
 
     private void disconnect() {
         setUIState(false);
-        System.out.println(NeuraManager.getInstance().getClient().isLoggedIn());
-        NeuraManager.getInstance().getClient().forgetMe(getActivity(), true, new android.os.Handler.Callback() {
-            @Override
-            public boolean handleMessage(Message msg) {
-                if (msg.arg1 == 1) {
-                    setUIState(NeuraManager.getInstance().getClient().isLoggedIn());
+        final NeuraHelper neuraHelper  = getNeuraHelper();
+        if(neuraHelper != null) {
+            System.out.println(neuraHelper.getClient().isLoggedIn());
+            neuraHelper.getClient().forgetMe(getActivity(), true, new android.os.Handler.Callback() {
+                @Override
+                public boolean handleMessage(Message msg) {
+                    if (msg.arg1 == 1) {
+                        setUIState(neuraHelper.getClient().isLoggedIn());
 
+                    }
+                    loadProgress(false);
+                    return true;
                 }
-                loadProgress(false);
-                return true;
-            }
-        });
+            });
+        }
     }
 
     private void setEnableOnButtons(boolean isConnected) {

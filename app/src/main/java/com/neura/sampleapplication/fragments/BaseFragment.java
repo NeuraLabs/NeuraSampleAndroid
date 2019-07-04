@@ -1,10 +1,12 @@
 package com.neura.sampleapplication.fragments;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.view.View;
 import android.widget.ProgressBar;
 
-import com.neura.sampleapplication.activities.MainActivity;
+import com.neura.sampleapplication.NeuraHelper;
+import com.neura.sampleapplication.SampleApplication;
 
 public abstract class BaseFragment extends Fragment {
 
@@ -15,7 +17,15 @@ public abstract class BaseFragment extends Fragment {
             mProgress.setVisibility(enable ? View.VISIBLE : View.GONE);
     }
 
-    public MainActivity getMainActivity() {
-        return (MainActivity) getActivity();
+
+    /**
+     * @return {@link NeuraHelper} instance or NULL if getActivity() returns null.
+     */
+    protected NeuraHelper getNeuraHelper(){
+        Context context = getActivity();
+        if(context != null){
+            return ((SampleApplication)context.getApplicationContext()).getCompositionRoot().getNeuraHelper();
+        }
+        return null;
     }
 }
