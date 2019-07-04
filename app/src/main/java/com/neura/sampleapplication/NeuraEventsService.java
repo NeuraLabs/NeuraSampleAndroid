@@ -33,8 +33,9 @@ public class NeuraEventsService extends FirebaseMessagingService {
     @Override
     public void onNewToken(String token) {
         Log.i(getClass().getSimpleName(), "Refreshed token: " + token);
-        //Update Neura with your new firebase token
-        NeuraManager.getInstance().getClient().registerFirebaseToken(token);
+        // Important! Update Neura with your new firebase token
+        NeuraHelper neuraHelper = ((SampleApplication) getApplicationContext()).getCompositionRoot().getNeuraHelper();
+        neuraHelper.getClient().registerFirebaseToken(token);
         // If you want to send messages to this application instance or
         // manage this apps subscriptions on the server side, send the
         // Instance ID token to your app server.

@@ -1,32 +1,19 @@
 package com.neura.sampleapplication.activities;
 
-import android.app.Activity;
 import android.os.Bundle;
 import com.google.android.gms.common.GoogleApiAvailability;
 
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
-import com.neura.sampleapplication.NeuraManager;
 import com.neura.sampleapplication.R;
 import com.neura.sampleapplication.fragments.BaseFragment;
 import com.neura.sampleapplication.fragments.FragmentMain;
 
-public class MainActivity extends Activity {
+public class MainActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(this);
         setContentView(R.layout.activity_main);
-
-        //http://stackoverflow.com/a/38945375/5130239
-        try {
-            FirebaseApp.getInstance();
-        } catch (IllegalStateException ex) {
-            FirebaseApp.initializeApp(this, FirebaseOptions.fromResource(this));
-        }
-
-        NeuraManager.getInstance().initNeuraConnection(getApplicationContext());
         openFragment(new FragmentMain());
     }
 
@@ -38,7 +25,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        NeuraManager.getInstance().getClient().disconnect();
+        getNeuraHelper().getClient().disconnect();
     }
 
     public void openFragment(BaseFragment newFragment) {

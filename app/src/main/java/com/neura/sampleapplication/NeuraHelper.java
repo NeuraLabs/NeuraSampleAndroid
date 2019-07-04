@@ -19,21 +19,15 @@ import com.neura.standalonesdk.util.SDKUtils;
 /**
  * Singleton class for interacting with NeuraApiClient
  */
-public class NeuraManager {
-    public static final String TAG = NeuraManager.class.getSimpleName();
+public class NeuraHelper {
 
-    private static NeuraManager sInstance;
+    private static final String TAG = NeuraHelper.class.getSimpleName();
 
     private NeuraApiClient mNeuraApiClient;
 
-    public static NeuraManager getInstance() {
-        if (sInstance == null)
-            sInstance = new NeuraManager();
-        return sInstance;
-    }
-
-    private NeuraManager() {
-
+    public NeuraHelper(Context context) {
+        // Replace Place holders with your own Neura APP_ID and Neura APP_SECRET
+        mNeuraApiClient = NeuraApiClient.getClient(context, "[APP_ID]", "[APP_SECRET]");
     }
 
     public NeuraApiClient getClient() {
@@ -56,16 +50,12 @@ public class NeuraManager {
      * We'll alert for the disabled sensors whenever Neura sdk might need it.
      */
 
-    public void initNeuraConnection(Context context) {
-        mNeuraApiClient = NeuraApiClient.getClient(context, "[APP_ID]", "[APP_SECRET]");
-    }
-
-    public static void authenticateAnonymously(final AnonymousAuthenticationStateListener silentStateListener) {
+    public void authenticateAnonymously(final AnonymousAuthenticationStateListener silentStateListener) {
         if (!isMinVersion()) {
             return;
         }
 
-        if (NeuraManager.getInstance().getClient().isLoggedIn()) {
+        if (mNeuraApiClient.isLoggedIn()) {
             return;
         }
 
@@ -80,25 +70,29 @@ public class NeuraManager {
                         }
 
                         // Get new Instance ID token
-                        String pushToken = task.getResult().getToken();
+                        if (task.getResult() != null) {
+                            String pushToken = task.getResult().getToken();
 
-                        //Instantiate AnonymousAuthenticationRequest instance.
-                        AnonymousAuthenticationRequest request = new AnonymousAuthenticationRequest(pushToken);
+                            //Instantiate AnonymousAuthenticationRequest instance.
+                            AnonymousAuthenticationRequest request = new AnonymousAuthenticationRequest(pushToken);
 
-                        //Pass the AnonymousAuthenticationRequest instance and register a call back for success and failure events.
-                        NeuraManager.getInstance().getClient().authenticate(request, new AnonymousAuthenticateCallBack() {
-                            @Override
-                            public void onSuccess(AnonymousAuthenticateData data) {
-                                NeuraManager.getInstance().getClient().registerAuthStateListener(silentStateListener);
-                                Log.i(TAG, "Successfully requested authentication with neura. ");
-                            }
+                            //Pass the AnonymousAuthenticationRequest instance and register a call back for success and failure events.
+                            mNeuraApiClient.authenticate(request, new AnonymousAuthenticateCallBack() {
+                                @Override
+                                public void onSuccess(AnonymousAuthenticateData data) {
+                                    mNeuraApiClient.registerAuthStateListener(silentStateListener);
+                                    Log.i(TAG, "Successfully requested authentication with neura. ");
+                                }
 
-                            @Override
-                            public void onFailure(int errorCode) {
-                                NeuraManager.getInstance().getClient().unregisterAuthStateListener();
-                                Log.e(TAG, "Failed to authenticate with neura. " + "Reason : " + SDKUtils.errorCodeToString(errorCode));
-                            }
-                        });
+                                @Override
+                                public void onFailure(int errorCode) {
+                                    mNeuraApiClient.unregisterAuthStateListener();
+                                    Log.e(TAG, "Failed to authenticate with neura. " + "Reason : " + SDKUtils.errorCodeToString(errorCode));
+                                }
+                            });
+                        } else {
+                            Log.e(TAG, "Firebase task returned without result, cannot proceed with Authentication flow.");
+                        }
                     }
                 });
 
