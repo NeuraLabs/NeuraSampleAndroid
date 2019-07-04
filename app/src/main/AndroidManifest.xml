@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.neura.sampleapplication">
 
-    <!-- If you start Neura in foreground service AND you target API 28 and above
+    <!-- If you start Neura in foreground mode AND you target API 28 and above
          Make sure you add this permission to your manifest file -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
