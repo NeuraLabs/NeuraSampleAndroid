@@ -1,5 +1,6 @@
 package com.neura.sampleapplication.fragments;
 
+import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Message;
@@ -19,6 +20,7 @@ import com.neura.resources.user.UserDetails;
 import com.neura.resources.user.UserDetailsCallbacks;
 import com.neura.sampleapplication.NeuraHelper;
 import com.neura.sampleapplication.R;
+import com.neura.sampleapplication.activities.MainActivity;
 
 public class FragmentMain extends BaseFragment {
 
@@ -112,19 +114,18 @@ public class FragmentMain extends BaseFragment {
         }
     };
 
-    private void requestLocationPermission(){
-        if (ActivityCompat.checkSelfPermission(getActivity(),
-            android.Manifest.permission.ACCESS_FINE_LOCATION) !=
-            PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(),
-            android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(getActivity(),
-                new String[]{ android.Manifest.permission.ACCESS_FINE_LOCATION}, 1111);
-            return;
-        }
-        else{
-            // Make sure the user enables location,
-            // this is needed to for Neura to work, and is not automatic when using anonymous authentication.
-            // Phone based auth asks for it automatically.
+    private void requestLocationPermission() {
+        // Neura functions better with location permission, as a best practice ask permission at the right moment.
+        boolean hasForegroundPermission = ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+
+        if (hasForegroundPermission) {
+            boolean hasBackgroundPermission = ActivityCompat.checkSelfPermission(getActivity(),
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED;
+            if (!hasBackgroundPermission) {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, MainActivity.LOCATION_PERMISSION_REQUEST_CODE);
+            }
+        } else {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION}, MainActivity.LOCATION_PERMISSION_REQUEST_CODE);
         }
     }
 
